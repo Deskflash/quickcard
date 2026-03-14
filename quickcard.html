@@ -243,12 +243,17 @@ svg{display:block;flex-shrink:0}
 .sr-icon.gray{background:var(--surface2);color:var(--text2)}
 .sr-chev{width:16px;height:16px;color:var(--text2);margin-left:auto}
 .app-footer{text-align:center;color:var(--text2);font-size:12.5px;padding:20px 0 8px}
+.info-bullets{list-style:none;padding:0;margin:0;background:var(--surface);border-radius:16px;box-shadow:var(--shadow);border:1px solid var(--border);overflow:hidden}
+.info-bullets li{display:flex;align-items:center;gap:10px;padding:13px 16px;font-size:15px;font-weight:500;color:var(--text)}
+.info-bullets li+li{border-top:1px solid var(--border)}
+.info-bullets li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0}
 
 
 /* CUSTOM LOGOS */
 .logo-spinner{width:40px;height:40px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spinLogo .8s linear infinite;margin:0 auto}
 @keyframes spinLogo{to{transform:rotate(360deg)}}
-.logo-card-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.logo-card-row{display:flex;align-items:center;gap:12px;padding:11px 10px;border-bottom:1px solid var(--border);border-radius:12px;cursor:pointer;transition:background .15s;margin:0 -10px}
+.logo-card-row:hover,.logo-card-row:active{background:var(--surface2)}
 .logo-card-row:last-child{border-bottom:none}
 .logo-thumb-before{width:38px;height:38px;border-radius:10px;flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--text2);overflow:hidden;border:1px solid var(--border)}
 .logo-thumb-before img{width:100%;height:100%;object-fit:contain;padding:4px;display:block}
@@ -348,16 +353,12 @@ svg{display:block;flex-shrink:0}
     </div>
     <div class="settings-block">
       <p class="settings-label">Info</p>
-      <div class="settings-row" style="cursor:default">
-        <span class="sr-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></span>
-        Funziona offline
-      </div>
-      <div class="settings-row" style="cursor:default">
-        <span class="sr-icon gray"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-        Dati solo sul dispositivo
-      </div>
+      <ul class="info-bullets">
+        <li>Funziona offline dopo il primo caricamento</li>
+        <li>I dati sono salvati solo sul tuo dispositivo</li>
+      </ul>
     </div>
-    <p class="app-footer">QuickCard · Padova, Italia 🇮🇹</p>
+    <p class="app-footer">QuickCard 🇮🇹</p>
   </div>
 </div>
 
@@ -1083,7 +1084,8 @@ async function openAssignLogos(){
     if(res.found){
       toggle.className="logo-toggle"+(res.selected?" on":"");
       toggle.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>";
-      toggle.addEventListener("click",function(){
+      toggle.addEventListener("click",function(e){
+        e.stopPropagation();
         res.selected=!res.selected;
         toggle.classList.toggle("on",res.selected);
       });
@@ -1094,11 +1096,21 @@ async function openAssignLogos(){
       toggle=skip;
     }
 
+    var searchIc=document.createElement("div");
+    searchIc.style.cssText="flex-shrink:0;color:var(--text2);opacity:.5";
+    searchIc.innerHTML="<svg width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='m21 21-4.35-4.35'/></svg>";
     row.appendChild(before);
     row.appendChild(arrow);
     row.appendChild(after);
     row.appendChild(nm);
     row.appendChild(toggle);
+    row.appendChild(searchIc);
+    // Click row to open web search for logo
+    row.style.cursor="pointer";
+    row.addEventListener("click",function(){
+      var query=encodeURIComponent(name+" logo PNG transparent");
+      window.open("https://www.google.com/search?q="+query+"&tbm=isch","_blank");
+    });
     list.appendChild(row);
   });
 
