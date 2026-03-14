@@ -69,21 +69,19 @@ svg{display:block;flex-shrink:0}
 
 .cards-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 20px calc(var(--tab-h) + var(--safe-b) + 76px);align-content:start}
-.card-item{height:82px;border-radius:20px;display:flex;align-items:center;gap:10px;padding:0 13px;overflow:hidden;position:relative;cursor:pointer;user-select:none;box-shadow:0 6px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.2);transform:translateZ(0);transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s;animation:cardIn .38s cubic-bezier(.34,1.56,.64,1) both}
+.card-item{height:100px;border-radius:20px;display:flex;flex-direction:column;justify-content:space-between;padding:12px 13px 10px;overflow:hidden;position:relative;cursor:pointer;user-select:none;box-shadow:0 6px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.2);transform:translateZ(0);transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s;animation:cardIn .38s cubic-bezier(.34,1.56,.64,1) both}
 .card-item::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,0) 60%);pointer-events:none}
 .card-item:active{transform:scale(.93);box-shadow:0 2px 8px rgba(0,0,0,.14)}
 @keyframes cardIn{from{opacity:0;transform:scale(.88) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .card-item:nth-child(1){animation-delay:.00s}.card-item:nth-child(2){animation-delay:.04s}
 .card-item:nth-child(3){animation-delay:.08s}.card-item:nth-child(4){animation-delay:.12s}
 .card-item:nth-child(5){animation-delay:.16s}.card-item:nth-child(n+6){animation-delay:.20s}
-.card-badge{width:42px;height:42px;border-radius:11px;flex-shrink:0;background:rgba(255,255,255,.9);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1.5px solid rgba(255,255,255,.4)}
-.card-badge img{width:100%;height:100%;object-fit:contain;padding:5px;display:block}
-.badge-initial{font-size:20px;font-weight:800;color:#fff}
-.card-info{flex:1;min-width:0}
-.card-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.96);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
-.card-last4{font-size:10px;color:rgba(255,255,255,.6);margin-top:3px;font-weight:500;letter-spacing:.5px}
-.card-bc-deco{width:22px;height:44px;flex-shrink:0;display:flex;flex-direction:column;gap:1.5px;opacity:.38}
-.card-bc-deco span{display:block;background:rgba(255,255,255,.9);border-radius:1px;width:100%}
+.card-top{display:flex;flex-direction:column;gap:2px;min-width:0}
+.card-name{font-size:13px;font-weight:700;color:rgba(255,255,255,.97);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.card-last4{font-size:10px;color:rgba(255,255,255,.6);font-weight:500;letter-spacing:.5px}
+.card-badge{width:100%;height:28px;border-radius:7px;flex-shrink:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;overflow:hidden;border:none}
+.card-badge img{height:22px;width:auto;max-width:100%;object-fit:contain;padding:2px 6px;display:block}
+.badge-initial{font-size:13px;font-weight:800;color:rgba(0,0,0,.55);letter-spacing:.5px}
 
 /* EMPTY */
 .empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 36px;text-align:center}
@@ -248,13 +246,25 @@ svg{display:block;flex-shrink:0}
 
 
 /* CUSTOM LOGOS */
-.logo-assign-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
-.logo-assign-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:14px;border:1.5px solid var(--border);cursor:pointer;transition:border-color .2s}
-.logo-assign-row:active{border-color:var(--accent)}
-.logo-assign-thumb{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface3);border:1px solid var(--border)}
-.logo-assign-thumb img{width:100%;height:100%;object-fit:contain;padding:4px}
-.logo-assign-name{flex:1;font-size:13px;font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.logo-assign-edit{font-size:11px;font-weight:600;color:var(--accent)}
+.logo-spinner{width:40px;height:40px;border:3px solid var(--surface3);border-top-color:var(--accent);border-radius:50%;animation:spinLogo .8s linear infinite;margin:0 auto}
+@keyframes spinLogo{to{transform:rotate(360deg)}}
+.logo-card-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.logo-card-row:last-child{border-bottom:none}
+.logo-thumb-before{width:38px;height:38px;border-radius:10px;flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:var(--text2);overflow:hidden;border:1px solid var(--border)}
+.logo-thumb-before img{width:100%;height:100%;object-fit:contain;padding:4px;display:block}
+.logo-arrow{color:var(--text2);flex-shrink:0}
+.logo-arrow svg{width:16px;height:16px}
+.logo-thumb-after{width:38px;height:38px;border-radius:10px;flex-shrink:0;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1.5px solid var(--border);position:relative}
+.logo-thumb-after img{width:100%;height:100%;object-fit:contain;padding:4px;display:block}
+.logo-thumb-after.found{border-color:rgba(22,163,106,.4)}
+.logo-thumb-after.notfound{background:var(--surface3)}
+.logo-card-name{flex:1;font-size:13.5px;font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logo-status{font-size:11px;font-weight:700;padding:3px 8px;border-radius:50px;flex-shrink:0}
+.logo-status.ok{background:rgba(22,163,106,.12);color:var(--accent)}
+.logo-status.skip{background:var(--surface3);color:var(--text2)}
+.logo-toggle{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1.5px solid var(--border);cursor:pointer;transition:all .2s;background:var(--surface2)}
+.logo-toggle.on{background:var(--accent);border-color:var(--accent)}
+.logo-toggle svg{width:13px;height:13px;color:#fff}
 
 /* TOAST */
 .toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 84px);left:50%;transform:translateX(-50%) translateY(16px);background:color-mix(in srgb,var(--text) 90%,transparent);color:var(--bg);padding:11px 20px;border-radius:50px;font-size:13.5px;font-weight:600;white-space:nowrap;z-index:999;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25)}
@@ -531,9 +541,29 @@ svg{display:block;flex-shrink:0}
       <h2 class="sheet-title">Assegna loghi</h2>
       <button class="icon-btn" id="close-logos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
-    <p style="font-size:13.5px;color:var(--text2);margin-bottom:16px;line-height:1.6">Tocca una card per caricare un logo personalizzato dal tuo dispositivo. Verrà salvato localmente e usato al posto di quello automatico.</p>
-    <div id="logos-list"></div>
-    <input type="file" id="logo-file-input" accept="image/*" style="display:none">
+    <div id="logos-searching" class="hidden" style="text-align:center;padding:28px 0">
+      <div class="logo-spinner"></div>
+      <p style="font-size:14px;color:var(--text2);margin-top:14px">Ricerca loghi in corso…</p>
+      <p style="font-size:12px;color:var(--text2);margin-top:6px" id="logos-search-prog"></p>
+    </div>
+    <div id="logos-results" class="hidden">
+      <div id="logos-stats" style="font-size:13px;color:var(--text2);margin-bottom:14px;line-height:1.6"></div>
+      <div id="logos-list"></div>
+      <div class="btn-row" style="margin-top:4px">
+        <button class="btn-s" id="logos-retry-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Riprova
+        </button>
+        <button class="btn-p" id="logos-apply-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Applica tutti
+        </button>
+      </div>
+    </div>
+    <div id="logos-empty" class="hidden" style="text-align:center;padding:28px 0">
+      <p style="font-size:15px;font-weight:700;margin-bottom:8px">Nessuna card salvata</p>
+      <p style="font-size:13.5px;color:var(--text2)">Aggiungi prima qualche card.</p>
+    </div>
   </div>
 </div>
 
@@ -636,11 +666,6 @@ function makeBadge(name){
   return sp;
 }
 
-function miniBC(){
-  var ws=[3,1,2,1,3,2,1,2,3,1,2,1,2,3];
-  return ws.map(function(w,i){ return "<span style='height:"+(14+Math.abs(Math.sin(i)*14)|0)+"px'></span>"; }).join("");
-}
-
 function renderGrid(){
   var grid=document.getElementById("cards-grid"),empty=document.getElementById("empty-state");
   var q=S.searchQ.toLowerCase().trim();
@@ -657,12 +682,13 @@ function renderGrid(){
     el.setAttribute("role","button");el.setAttribute("tabindex","0");
     el.style.background=cardGradient(c.name);
     el.style.animationDelay=(Math.min(i,5)*0.04)+"s";
+    var top=document.createElement("div");top.className="card-top";
+    var nm=document.createElement("p");nm.className="card-name";nm.textContent=c.name;
+    var l4=document.createElement("p");l4.className="card-last4";l4.textContent="•••• "+c.code.slice(-4).padStart(4,"•");
+    top.appendChild(nm);top.appendChild(l4);
     var badge=document.createElement("div");badge.className="card-badge";
     badge.appendChild(makeBadge(c.name));
-    var info=document.createElement("div");info.className="card-info";
-    info.innerHTML="<p class='card-name'>"+esc(c.name)+"</p><p class='card-last4'>•••• "+c.code.slice(-4).padStart(4,"•")+"</p>";
-    var deco=document.createElement("div");deco.className="card-bc-deco";deco.innerHTML=miniBC();
-    el.appendChild(badge);el.appendChild(info);el.appendChild(deco);
+    el.appendChild(top);el.appendChild(badge);
     grid.appendChild(el);
   });
 }
@@ -935,78 +961,165 @@ function setSort(mode){
   renderGrid();
 }
 
-var _logoTarget=null;
+// Logo sources to try in order
+var LOGO_SOURCES=[
+  function(name,domain){ return "https://logo.clearbit.com/"+domain; },
+  function(name,domain){ return "https://www.google.com/s2/favicons?domain="+domain+"&sz=128"; },
+  function(name,domain){ return "https://icons.duckduckgo.com/ip3/"+domain+".ico"; }
+];
 
-function openAssignLogos(){
-  var list=document.getElementById("logos-list");
-  list.innerHTML="";
-  if(!S.cards.length){
-    list.innerHTML="<p style='color:var(--text2);font-size:14px;text-align:center;padding:20px 0'>Nessuna card salvata.</p>";
-  } else {
-    S.cards.forEach(function(card){
-      var row=document.createElement("div");
-      row.className="logo-assign-row";
-      row.dataset.cid=card.id;
+var _logoSearchResults={};  // name -> {url, found, selected}
 
-      var thumb=document.createElement("div");
-      thumb.className="logo-assign-thumb";
-      var lu=getLogoUrl(card.name);
-      if(lu){
-        var img=document.createElement("img");
-        img.src=lu;
-        img.alt=card.name.charAt(0);
-        img.addEventListener("error",function(){
-          this.style.display="none";
-          var sp=document.createElement("span");
-          sp.style.cssText="font-size:16px;font-weight:800;color:var(--text2)";
-          sp.textContent=card.name.charAt(0).toUpperCase();
-          thumb.appendChild(sp);
-        });
-        thumb.appendChild(img);
-      } else {
-        var sp=document.createElement("span");
-        sp.style.cssText="font-size:16px;font-weight:800;color:var(--text2)";
-        sp.textContent=card.name.charAt(0).toUpperCase();
-        thumb.appendChild(sp);
-      }
-
-      var nm=document.createElement("div");
-      nm.className="logo-assign-name";
-      nm.textContent=card.name;
-
-      var ed=document.createElement("div");
-      ed.className="logo-assign-edit";
-      ed.textContent=CUSTOM_LOGOS[card.name]?"Cambia":"+ Logo";
-
-      row.appendChild(thumb);
-      row.appendChild(nm);
-      row.appendChild(ed);
-
-      row.addEventListener("click",function(){
-        _logoTarget=card.name;
-        document.getElementById("logo-file-input").click();
-      });
-
-      list.appendChild(row);
-    });
-  }
-  openModal("modal-logos");
+function probeImage(url){
+  return new Promise(function(resolve){
+    var img=new Image();
+    img.onload=function(){ resolve(img.width>4&&img.height>4?url:null); };
+    img.onerror=function(){ resolve(null); };
+    img.src=url;
+    setTimeout(function(){ resolve(null); },5000);
+  });
 }
 
-function handleLogoFile(e){
-  var file=e.target.files&&e.target.files[0];
-  if(!file||!_logoTarget) return;
-  var reader=new FileReader();
-  reader.onload=function(ev){
-    var dataUrl=ev.target.result;
-    CUSTOM_LOGOS[_logoTarget]=dataUrl;
-    saveLogos();
-    renderGrid();
-    openAssignLogos();
-    toast("Logo aggiornato per "+_logoTarget);
-  };
-  reader.readAsDataURL(file);
-  e.target.value="";
+async function searchLogoForCard(name){
+  // Already has custom logo saved
+  if(CUSTOM_LOGOS[name]) return {url:CUSTOM_LOGOS[name],found:true,custom:true};
+  var domain=DOMAINS[name];
+  if(!domain) return {url:null,found:false};
+  for(var i=0;i<LOGO_SOURCES.length;i++){
+    var url=LOGO_SOURCES[i](name,domain);
+    var result=await probeImage(url);
+    if(result) return {url:result,found:true,custom:false};
+  }
+  return {url:null,found:false};
+}
+
+async function openAssignLogos(){
+  if(!S.cards.length){
+    document.getElementById("logos-searching").classList.add("hidden");
+    document.getElementById("logos-results").classList.add("hidden");
+    document.getElementById("logos-empty").classList.remove("hidden");
+    openModal("modal-logos");
+    return;
+  }
+
+  _logoSearchResults={};
+  document.getElementById("logos-searching").classList.remove("hidden");
+  document.getElementById("logos-results").classList.add("hidden");
+  document.getElementById("logos-empty").classList.add("hidden");
+  openModal("modal-logos");
+
+  var prog=document.getElementById("logos-search-prog");
+  var uniqueNames=[];
+  var seen={};
+  S.cards.forEach(function(c){ if(!seen[c.name]){ seen[c.name]=true; uniqueNames.push(c.name); } });
+
+  var found=0,notFound=0;
+  for(var i=0;i<uniqueNames.length;i++){
+    var name=uniqueNames[i];
+    prog.textContent=(i+1)+"/"+uniqueNames.length+" — "+name;
+    var res=await searchLogoForCard(name);
+    _logoSearchResults[name]=Object.assign({selected:res.found},res);
+    if(res.found) found++; else notFound++;
+  }
+
+  // Build results UI
+  document.getElementById("logos-searching").classList.add("hidden");
+  document.getElementById("logos-results").classList.remove("hidden");
+
+  var statsEl=document.getElementById("logos-stats");
+  statsEl.innerHTML="Trovati <strong style='color:var(--accent)'>"+found+"</strong> loghi su "+uniqueNames.length+" card"+
+    (notFound?" · <span style='color:var(--text2)'>"+notFound+" non trovati</span>":"")+".<br>"+
+    "Deseleziona quelli che non vuoi applicare.";
+
+  var list=document.getElementById("logos-list");
+  list.innerHTML="";
+
+  uniqueNames.forEach(function(name){
+    var res=_logoSearchResults[name];
+
+    var row=document.createElement("div");
+    row.className="logo-card-row";
+
+    // Before: current state
+    var before=document.createElement("div");
+    before.className="logo-thumb-before";
+    var curLogo=CUSTOM_LOGOS[name]||null;
+    if(curLogo){
+      var bi=document.createElement("img"); bi.src=curLogo; before.appendChild(bi);
+    } else if(DOMAINS[name]) {
+      var bi=document.createElement("img");
+      bi.src="https://logo.clearbit.com/"+DOMAINS[name];
+      bi.onerror=function(){this.style.display="none";before.textContent=name.charAt(0).toUpperCase();};
+      before.appendChild(bi);
+    } else {
+      before.textContent=name.charAt(0).toUpperCase();
+    }
+
+    // Arrow
+    var arrow=document.createElement("div");
+    arrow.className="logo-arrow";
+    arrow.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg>";
+
+    // After: found logo
+    var after=document.createElement("div");
+    after.className="logo-thumb-after"+(res.found?" found":" notfound");
+    if(res.found&&res.url){
+      var ai=document.createElement("img"); ai.src=res.url;
+      ai.onerror=function(){after.textContent=name.charAt(0).toUpperCase();};
+      after.appendChild(ai);
+    } else {
+      after.textContent=name.charAt(0).toUpperCase();
+      after.style.color="var(--text2)";
+      after.style.fontWeight="800";
+    }
+
+    // Name
+    var nm=document.createElement("div");
+    nm.className="logo-card-name";
+    nm.textContent=name;
+
+    // Status/toggle
+    var toggle=document.createElement("div");
+    if(res.found){
+      toggle.className="logo-toggle"+(res.selected?" on":"");
+      toggle.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>";
+      toggle.addEventListener("click",function(){
+        res.selected=!res.selected;
+        toggle.classList.toggle("on",res.selected);
+      });
+    } else {
+      var skip=document.createElement("div");
+      skip.className="logo-status skip";
+      skip.textContent="Non trovato";
+      toggle=skip;
+    }
+
+    row.appendChild(before);
+    row.appendChild(arrow);
+    row.appendChild(after);
+    row.appendChild(nm);
+    row.appendChild(toggle);
+    list.appendChild(row);
+  });
+
+  // Update apply button
+  document.getElementById("logos-apply-btn").innerHTML=
+    "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>Applica "+found+" loghi";
+}
+
+function applyLogos(){
+  var applied=0;
+  Object.keys(_logoSearchResults).forEach(function(name){
+    var res=_logoSearchResults[name];
+    if(res.found&&res.selected&&res.url&&!res.custom){
+      CUSTOM_LOGOS[name]=res.url;
+      applied++;
+    }
+  });
+  saveLogos();
+  renderGrid();
+  closeModal("modal-logos");
+  toast("✓ "+applied+" logo"+(applied===1?"":" applicati"));
 }
 
 function attachEvents(){
@@ -1034,7 +1147,8 @@ function attachEvents(){
   document.getElementById("btn-assign-logos").addEventListener("click",openAssignLogos);
   document.getElementById("close-logos").addEventListener("click",function(){ closeModal("modal-logos"); });
   document.getElementById("modal-logos").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-logos"); });
-  document.getElementById("logo-file-input").addEventListener("change",handleLogoFile);
+  document.getElementById("logos-apply-btn").addEventListener("click",applyLogos);
+  document.getElementById("logos-retry-btn").addEventListener("click",openAssignLogos);
   document.querySelectorAll(".sort-btn").forEach(function(b){
     b.addEventListener("click",function(){ setSort(b.dataset.sort); });
   });
