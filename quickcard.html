@@ -822,11 +822,14 @@ function shareMail(){
 }
 function exportAll(){
   if(!S.cards.length){ toast("Nessuna card da esportare"); return; }
-  var lines=S.cards.map(function(c){ return c.name+": "+c.code; }).join("\n");
-  var text="Le mie card QuickCard:\n\n"+lines;
-  if(navigator.share){ navigator.share({title:"Le mie card",text:text}).catch(function(){}); }
-  else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ toast("Copiate negli appunti!"); }); }
-  else{ prompt("Copia:",text); }
+  var payload=S.cards.map(function(c){ return c.name+"|"+c.code; }).join("~");
+  var encoded=btoa(encodeURIComponent(payload));
+  var base=window.location.href.split("?")[0].split("#")[0];
+  var link=base+"?import="+encoded;
+  var text="Le mie card QuickCard:\n\n"+S.cards.map(function(c){ return c.name+": "+c.code; }).join("\n")+"\n\n📲 Importa tutto in un tap:\n"+link;
+  if(navigator.share){ navigator.share({title:"Le mie card QuickCard",text:text,url:link}).catch(function(){}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(link).then(function(){ toast("Link copiato! Condividilo su WhatsApp o Email"); }); }
+  else{ prompt("Copia il link:",link); }
 }
 
 function openModal(id){ var m=document.getElementById(id); m.classList.add("open"); m.setAttribute("aria-hidden","false"); }
@@ -908,7 +911,65 @@ function attachEvents(){
   });
 }
 
-function init(){ injectManifest(); registerSW(); load(); populateStores(); renderGrid(); attachEvents(); }
+function checkUrlImport(){
+  try {
+    var params=new URLSearchParams(window.location.search);
+    var encoded=params.get("import");
+    if(!encoded) return;
+    var decoded=decodeURIComponent(atob(encoded));
+    var parts=decoded.split("~");
+    var parsed=[];
+    parts.forEach(function(p){
+      var idx=p.indexOf("|");
+      if(idx<1) return;
+      var name=p.substring(0,idx).trim();
+      var code=p.substring(idx+1).trim();
+      if(name&&code) parsed.push({name:name,code:code});
+    });
+    if(!parsed.length) return;
+    S.importParsed=parsed;
+    switchTab("profile");
+    setTimeout(function(){
+      openModal("modal-import");
+      var existingKeys={};
+      S.cards.forEach(function(c){ existingKeys[c.name.toLowerCase()+"|"+c.code]=true; });
+      var newOnes=0,dups=0;
+      var list=document.getElementById("import-preview-list");
+      list.innerHTML="";
+      parsed.forEach(function(item){
+        var isDup=!!existingKeys[item.name.toLowerCase()+"|"+item.code];
+        if(isDup) dups++; else newOnes++;
+        var row=document.createElement("div"); row.className="import-row";
+        var ic=document.createElement("div"); ic.className="import-ic"; ic.style.background=cardGradient(item.name);
+        var lu=getLogoUrl(item.name);
+        if(lu){ var img=document.createElement("img"); img.src=lu; img.alt=item.name.charAt(0); img.style.cssText="width:100%;height:100%;object-fit:contain;padding:3px;display:block"; img.addEventListener("error",function(){this.style.display="none";ic.textContent=item.name.charAt(0).toUpperCase();}); ic.appendChild(img); }
+        else { ic.textContent=item.name.charAt(0).toUpperCase(); }
+        var info=document.createElement("div"); info.style.cssText="flex:1;min-width:0";
+        var nm=document.createElement("div"); nm.className="import-name"; nm.textContent=item.name;
+        var cd=document.createElement("div"); cd.className="import-code"; cd.textContent=item.code;
+        info.appendChild(nm); info.appendChild(cd);
+        var badge=document.createElement("div");
+        if(isDup){
+          badge.className="import-dup";
+          badge.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><line x1='5' y1='12' x2='19' y2='12'/></svg>";
+        } else {
+          badge.className="import-check";
+          badge.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>";
+        }
+        row.appendChild(ic); row.appendChild(info); row.appendChild(badge);
+        list.appendChild(row);
+      });
+      document.getElementById("imp-new-count").textContent=newOnes;
+      document.getElementById("imp-dup-count").textContent=dups;
+      var btn=document.getElementById("import-confirm-btn");
+      btn.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>Importa "+newOnes+" card";
+      showImportStep("preview");
+      window.history.replaceState({},"",window.location.pathname);
+    },400);
+  } catch(e){ console.warn("URL import error",e); }
+}
+
+function init(){ injectManifest(); registerSW(); load(); populateStores(); renderGrid(); attachEvents(); checkUrlImport(); }
 init();
 </script>
 </body>
