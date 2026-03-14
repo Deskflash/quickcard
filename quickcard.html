@@ -58,6 +58,15 @@ svg{display:block;flex-shrink:0}
 .search-bar input::placeholder{color:var(--text2)}
 
 /* GRID */
+
+/* SORT BAR */
+.sort-bar{display:flex;align-items:center;gap:8px;padding:0 20px 10px;flex-shrink:0}
+.sort-lbl{font-size:12px;font-weight:600;color:var(--text2);flex-shrink:0}
+.sort-btns{display:flex;gap:5px;flex:1}
+.sort-btn{flex:1;padding:7px 6px;border-radius:10px;font-size:12px;font-weight:600;color:var(--text2);background:var(--surface2);border:1.5px solid transparent;transition:all .2s;text-align:center;display:flex;align-items:center;justify-content:center;gap:4px}
+.sort-btn svg{width:13px;height:13px;flex-shrink:0}
+.sort-btn.active{background:var(--surface);color:var(--accent);border-color:var(--border);box-shadow:0 1px 6px rgba(10,31,20,.08)}
+
 .cards-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 20px calc(var(--tab-h) + var(--safe-b) + 76px);align-content:start}
 .card-item{height:82px;border-radius:20px;display:flex;align-items:center;gap:10px;padding:0 13px;overflow:hidden;position:relative;cursor:pointer;user-select:none;box-shadow:0 6px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.2);transform:translateZ(0);transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s;animation:cardIn .38s cubic-bezier(.34,1.56,.64,1) both}
@@ -237,6 +246,16 @@ svg{display:block;flex-shrink:0}
 .sr-chev{width:16px;height:16px;color:var(--text2);margin-left:auto}
 .app-footer{text-align:center;color:var(--text2);font-size:12.5px;padding:20px 0 8px}
 
+
+/* CUSTOM LOGOS */
+.logo-assign-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.logo-assign-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border-radius:14px;border:1.5px solid var(--border);cursor:pointer;transition:border-color .2s}
+.logo-assign-row:active{border-color:var(--accent)}
+.logo-assign-thumb{width:40px;height:40px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface3);border:1px solid var(--border)}
+.logo-assign-thumb img{width:100%;height:100%;object-fit:contain;padding:4px}
+.logo-assign-name{flex:1;font-size:13px;font-weight:600;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.logo-assign-edit{font-size:11px;font-weight:600;color:var(--accent)}
+
 /* TOAST */
 .toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 84px);left:50%;transform:translateX(-50%) translateY(16px);background:color-mix(in srgb,var(--text) 90%,transparent);color:var(--bg);padding:11px 20px;border-radius:50px;font-size:13.5px;font-weight:600;white-space:nowrap;z-index:999;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -257,6 +276,23 @@ svg{display:block;flex-shrink:0}
       <input id="search-input" type="search" placeholder="Cerca per nome negozio…" autocomplete="off" spellcheck="false">
     </div>
   </header>
+  <div class="sort-bar">
+    <span class="sort-lbl">Ordina:</span>
+    <div class="sort-btns">
+      <button class="sort-btn" data-sort="az">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="12" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/><polyline points="18 3 22 6 18 9"/></svg>
+        A→Z
+      </button>
+      <button class="sort-btn" data-sort="za">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="4" y1="6" x2="14" y2="6"/><line x1="4" y1="12" x2="12" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/><polyline points="18 15 22 18 18 21"/></svg>
+        Z→A
+      </button>
+      <button class="sort-btn active" data-sort="freq">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Frequenti
+      </button>
+    </div>
+  </div>
   <div class="cards-scroll">
     <div id="cards-grid" class="cards-grid"></div>
     <div id="empty-state" class="empty-state hidden">
@@ -292,6 +328,11 @@ svg{display:block;flex-shrink:0}
       <button class="settings-row" id="btn-import">
         <span class="sr-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="8 6 12 2 16 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
         Importa card
+        <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="settings-row" id="btn-assign-logos">
+        <span class="sr-icon" style="background:rgba(168,85,247,.1);color:#A855F7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
+        Assegna loghi
         <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
@@ -481,6 +522,21 @@ svg{display:block;flex-shrink:0}
   </div>
 </div>
 
+
+<!-- MODAL ASSIGN LOGOS -->
+<div id="modal-logos" class="modal-overlay" aria-hidden="true">
+  <div class="bottom-sheet">
+    <div class="sheet-pill"></div>
+    <div class="sheet-head">
+      <h2 class="sheet-title">Assegna loghi</h2>
+      <button class="icon-btn" id="close-logos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <p style="font-size:13.5px;color:var(--text2);margin-bottom:16px;line-height:1.6">Tocca una card per caricare un logo personalizzato dal tuo dispositivo. Verrà salvato localmente e usato al posto di quello automatico.</p>
+    <div id="logos-list"></div>
+    <input type="file" id="logo-file-input" accept="image/*" style="display:none">
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 </div>
 
@@ -533,15 +589,28 @@ var DOMAINS={
 };
 
 function getLogoUrl(name){
+  if(CUSTOM_LOGOS[name]) return CUSTOM_LOGOS[name];
   var d=DOMAINS[name];
   return d ? "https://logo.clearbit.com/"+d : null;
 }
 
 var KEY="quickcard_v1";
-var S={cards:[],selected:null,cameraReader:null,searchQ:"",importParsed:[]};
+var S={cards:[],selected:null,cameraReader:null,searchQ:"",importParsed:[],sortMode:"freq"};
+var OPEN_COUNTS={};
+var CUSTOM_LOGOS={};
 
-function load(){ try{ S.cards=JSON.parse(localStorage.getItem(KEY)||"[]"); }catch(e){ S.cards=[]; } }
-function save(){ localStorage.setItem(KEY,JSON.stringify(S.cards)); }
+function load(){
+  try{ S.cards=JSON.parse(localStorage.getItem(KEY)||"[]"); }catch(e){ S.cards=[]; }
+  try{ OPEN_COUNTS=JSON.parse(localStorage.getItem(KEY+"_oc")||"{}"); }catch(e){ OPEN_COUNTS={}; }
+  try{ CUSTOM_LOGOS=JSON.parse(localStorage.getItem(KEY+"_lg")||"{}"); }catch(e){ CUSTOM_LOGOS={}; }
+}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(S.cards));
+  localStorage.setItem(KEY+"_oc",JSON.stringify(OPEN_COUNTS));
+}
+function saveLogos(){
+  localStorage.setItem(KEY+"_lg",JSON.stringify(CUSTOM_LOGOS));
+}
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
 function fmt(ts){ return new Date(ts).toLocaleDateString("it-IT",{day:"2-digit",month:"long",year:"numeric"}); }
 function hash(s){ var h=0; for(var i=0;i<s.length;i++) h=Math.imul(31,h)+s.charCodeAt(i)|0; return Math.abs(h); }
@@ -575,7 +644,10 @@ function miniBC(){
 function renderGrid(){
   var grid=document.getElementById("cards-grid"),empty=document.getElementById("empty-state");
   var q=S.searchQ.toLowerCase().trim();
-  var list=q?S.cards.filter(function(c){ return c.name.toLowerCase().indexOf(q)>=0; }):S.cards;
+  var list=q?S.cards.filter(function(c){ return c.name.toLowerCase().indexOf(q)>=0; }):S.cards.slice();
+  if(S.sortMode==="az"){ list.sort(function(a,b){ return a.name.localeCompare(b.name,"it"); }); }
+  else if(S.sortMode==="za"){ list.sort(function(a,b){ return b.name.localeCompare(a.name,"it"); }); }
+  else { list.sort(function(a,b){ return (OPEN_COUNTS[b.id]||0)-(OPEN_COUNTS[a.id]||0); }); }
   document.getElementById("header-count").textContent=S.cards.length+" card";
   if(!list.length){ grid.innerHTML=""; empty.classList.remove("hidden"); return; }
   empty.classList.add("hidden"); grid.innerHTML="";
@@ -765,6 +837,8 @@ function openDetail(id){
   var card=S.cards.find(function(c){ return c.id===id; });
   if(!card) return;
   S.selected=card;
+  OPEN_COUNTS[id]=(OPEN_COUNTS[id]||0)+1;
+  save();
   document.getElementById("detail-hero").style.background=cardGradient(card.name);
   document.getElementById("detail-topbar-name").textContent=card.name;
   var dhl=document.getElementById("dh-logo");
@@ -822,14 +896,11 @@ function shareMail(){
 }
 function exportAll(){
   if(!S.cards.length){ toast("Nessuna card da esportare"); return; }
-  var payload=S.cards.map(function(c){ return c.name+"|"+c.code; }).join("~");
-  var encoded=btoa(encodeURIComponent(payload));
-  var base=window.location.href.split("?")[0].split("#")[0];
-  var link=base+"?import="+encoded;
-  var text="Le mie card QuickCard:\n\n"+S.cards.map(function(c){ return c.name+": "+c.code; }).join("\n")+"\n\n📲 Importa tutto in un tap:\n"+link;
-  if(navigator.share){ navigator.share({title:"Le mie card QuickCard",text:text,url:link}).catch(function(){}); }
-  else if(navigator.clipboard){ navigator.clipboard.writeText(link).then(function(){ toast("Link copiato! Condividilo su WhatsApp o Email"); }); }
-  else{ prompt("Copia il link:",link); }
+  var lines=S.cards.map(function(c){ return c.name+": "+c.code; }).join("\n");
+  var text="Le mie card QuickCard:\n\n"+lines;
+  if(navigator.share){ navigator.share({title:"Le mie card",text:text}).catch(function(){}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ toast("Copiate negli appunti!"); }); }
+  else{ prompt("Copia:",text); }
 }
 
 function openModal(id){ var m=document.getElementById(id); m.classList.add("open"); m.setAttribute("aria-hidden","false"); }
@@ -856,6 +927,88 @@ function injectManifest(){
   document.getElementById("pwa-manifest").href=URL.createObjectURL(blob);
 }
 
+function setSort(mode){
+  S.sortMode=mode;
+  document.querySelectorAll(".sort-btn").forEach(function(b){
+    b.classList.toggle("active",b.dataset.sort===mode);
+  });
+  renderGrid();
+}
+
+var _logoTarget=null;
+
+function openAssignLogos(){
+  var list=document.getElementById("logos-list");
+  list.innerHTML="";
+  if(!S.cards.length){
+    list.innerHTML="<p style='color:var(--text2);font-size:14px;text-align:center;padding:20px 0'>Nessuna card salvata.</p>";
+  } else {
+    S.cards.forEach(function(card){
+      var row=document.createElement("div");
+      row.className="logo-assign-row";
+      row.dataset.cid=card.id;
+
+      var thumb=document.createElement("div");
+      thumb.className="logo-assign-thumb";
+      var lu=getLogoUrl(card.name);
+      if(lu){
+        var img=document.createElement("img");
+        img.src=lu;
+        img.alt=card.name.charAt(0);
+        img.addEventListener("error",function(){
+          this.style.display="none";
+          var sp=document.createElement("span");
+          sp.style.cssText="font-size:16px;font-weight:800;color:var(--text2)";
+          sp.textContent=card.name.charAt(0).toUpperCase();
+          thumb.appendChild(sp);
+        });
+        thumb.appendChild(img);
+      } else {
+        var sp=document.createElement("span");
+        sp.style.cssText="font-size:16px;font-weight:800;color:var(--text2)";
+        sp.textContent=card.name.charAt(0).toUpperCase();
+        thumb.appendChild(sp);
+      }
+
+      var nm=document.createElement("div");
+      nm.className="logo-assign-name";
+      nm.textContent=card.name;
+
+      var ed=document.createElement("div");
+      ed.className="logo-assign-edit";
+      ed.textContent=CUSTOM_LOGOS[card.name]?"Cambia":"+ Logo";
+
+      row.appendChild(thumb);
+      row.appendChild(nm);
+      row.appendChild(ed);
+
+      row.addEventListener("click",function(){
+        _logoTarget=card.name;
+        document.getElementById("logo-file-input").click();
+      });
+
+      list.appendChild(row);
+    });
+  }
+  openModal("modal-logos");
+}
+
+function handleLogoFile(e){
+  var file=e.target.files&&e.target.files[0];
+  if(!file||!_logoTarget) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var dataUrl=ev.target.result;
+    CUSTOM_LOGOS[_logoTarget]=dataUrl;
+    saveLogos();
+    renderGrid();
+    openAssignLogos();
+    toast("Logo aggiornato per "+_logoTarget);
+  };
+  reader.readAsDataURL(file);
+  e.target.value="";
+}
+
 function attachEvents(){
   document.querySelectorAll(".tab-item").forEach(function(b){ b.addEventListener("click",function(){ switchTab(b.dataset.tab); }); });
   document.getElementById("fab").addEventListener("click",openAdd);
@@ -878,6 +1031,13 @@ function attachEvents(){
   document.getElementById("share-wa").addEventListener("click",shareWA);
   document.getElementById("share-mail").addEventListener("click",shareMail);
   document.getElementById("btn-export").addEventListener("click",exportAll);
+  document.getElementById("btn-assign-logos").addEventListener("click",openAssignLogos);
+  document.getElementById("close-logos").addEventListener("click",function(){ closeModal("modal-logos"); });
+  document.getElementById("modal-logos").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-logos"); });
+  document.getElementById("logo-file-input").addEventListener("change",handleLogoFile);
+  document.querySelectorAll(".sort-btn").forEach(function(b){
+    b.addEventListener("click",function(){ setSort(b.dataset.sort); });
+  });
   document.getElementById("btn-import").addEventListener("click",openImport);
   document.getElementById("close-import").addEventListener("click",closeImport);
   document.getElementById("modal-import").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeImport(); });
@@ -907,69 +1067,12 @@ function attachEvents(){
   ds.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&ds.scrollTop<5) closeDetail(); },{passive:true});
   document.querySelectorAll(".bottom-sheet").forEach(function(bs){
     bs.addEventListener("touchstart",function(e){ ty=e.touches[0].clientY; },{passive:true});
-    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); } },{passive:true});
+    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); closeModal("modal-logos"); } },{passive:true});
   });
 }
 
-function checkUrlImport(){
-  try {
-    var params=new URLSearchParams(window.location.search);
-    var encoded=params.get("import");
-    if(!encoded) return;
-    var decoded=decodeURIComponent(atob(encoded));
-    var parts=decoded.split("~");
-    var parsed=[];
-    parts.forEach(function(p){
-      var idx=p.indexOf("|");
-      if(idx<1) return;
-      var name=p.substring(0,idx).trim();
-      var code=p.substring(idx+1).trim();
-      if(name&&code) parsed.push({name:name,code:code});
-    });
-    if(!parsed.length) return;
-    S.importParsed=parsed;
-    switchTab("profile");
-    setTimeout(function(){
-      openModal("modal-import");
-      var existingKeys={};
-      S.cards.forEach(function(c){ existingKeys[c.name.toLowerCase()+"|"+c.code]=true; });
-      var newOnes=0,dups=0;
-      var list=document.getElementById("import-preview-list");
-      list.innerHTML="";
-      parsed.forEach(function(item){
-        var isDup=!!existingKeys[item.name.toLowerCase()+"|"+item.code];
-        if(isDup) dups++; else newOnes++;
-        var row=document.createElement("div"); row.className="import-row";
-        var ic=document.createElement("div"); ic.className="import-ic"; ic.style.background=cardGradient(item.name);
-        var lu=getLogoUrl(item.name);
-        if(lu){ var img=document.createElement("img"); img.src=lu; img.alt=item.name.charAt(0); img.style.cssText="width:100%;height:100%;object-fit:contain;padding:3px;display:block"; img.addEventListener("error",function(){this.style.display="none";ic.textContent=item.name.charAt(0).toUpperCase();}); ic.appendChild(img); }
-        else { ic.textContent=item.name.charAt(0).toUpperCase(); }
-        var info=document.createElement("div"); info.style.cssText="flex:1;min-width:0";
-        var nm=document.createElement("div"); nm.className="import-name"; nm.textContent=item.name;
-        var cd=document.createElement("div"); cd.className="import-code"; cd.textContent=item.code;
-        info.appendChild(nm); info.appendChild(cd);
-        var badge=document.createElement("div");
-        if(isDup){
-          badge.className="import-dup";
-          badge.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><line x1='5' y1='12' x2='19' y2='12'/></svg>";
-        } else {
-          badge.className="import-check";
-          badge.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>";
-        }
-        row.appendChild(ic); row.appendChild(info); row.appendChild(badge);
-        list.appendChild(row);
-      });
-      document.getElementById("imp-new-count").textContent=newOnes;
-      document.getElementById("imp-dup-count").textContent=dups;
-      var btn=document.getElementById("import-confirm-btn");
-      btn.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>Importa "+newOnes+" card";
-      showImportStep("preview");
-      window.history.replaceState({},"",window.location.pathname);
-    },400);
-  } catch(e){ console.warn("URL import error",e); }
-}
 
-function init(){ injectManifest(); registerSW(); load(); populateStores(); renderGrid(); attachEvents(); checkUrlImport(); }
+function init(){ injectManifest(); registerSW(); load(); populateStores(); renderGrid(); attachEvents(); }
 init();
 </script>
 </body>
