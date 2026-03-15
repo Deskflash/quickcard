@@ -79,8 +79,8 @@ svg{display:block;flex-shrink:0}
 .card-top{display:flex;flex-direction:column;gap:2px;min-width:0}
 .card-name{font-size:13px;font-weight:700;color:rgba(255,255,255,.97);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
 .card-last4{font-size:10px;color:rgba(255,255,255,.6);font-weight:500;letter-spacing:.5px}
-.card-badge{width:100%;height:28px;border-radius:7px;flex-shrink:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;overflow:hidden;border:none}
-.card-badge img{height:22px;width:auto;max-width:100%;object-fit:contain;padding:2px 6px;display:block}
+.card-badge{width:100%;height:30px;border-radius:7px;flex-shrink:0;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;border:none}
+.card-badge img{width:100%;height:100%;object-fit:contain;padding:1px;display:block}
 .badge-initial{font-size:13px;font-weight:800;color:rgba(0,0,0,.55);letter-spacing:.5px}
 
 /* EMPTY */
@@ -393,6 +393,11 @@ input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border
       <button class="settings-row" id="btn-palettes">
         <span class="sr-icon" style="background:rgba(245,158,11,.1);color:#F59E0B"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg></span>
         Scale di colori
+        <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <button class="settings-row" id="btn-delete-all" style="color:var(--danger)">
+        <span class="sr-icon" style="background:rgba(255,68,68,.1);color:var(--danger)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg></span>
+        Elimina tutte le card
         <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
     </div>
@@ -832,7 +837,7 @@ function makeBadge(name){
   if(logoUrl){
     var img=document.createElement("img");
     img.src=logoUrl;img.alt=initial;
-    img.style.cssText="width:100%;height:100%;object-fit:contain;padding:5px;display:block";
+    img.style.cssText="width:100%;height:100%;object-fit:contain;padding:1px;display:block";
     img.addEventListener("error",function(){
       this.style.display="none";
       var sp=document.createElement("span");sp.className="badge-initial";sp.textContent=initial;
@@ -972,19 +977,29 @@ function parseImportText(raw){
   lines.forEach(function(line){
     line=line.trim();
     if(!line) return;
-    // Skip header lines like "Le mie card QuickCard:"
-    if(line.indexOf(":")===-1) return;
-    // Match "Name: code" pattern — name can contain spaces, code is last segment
-    var idx=line.lastIndexOf(":");
-    var name=line.substring(0,idx).trim();
-    var code=line.substring(idx+1).trim();
-    // Filter: name must be non-empty, code must look like a barcode (alphanumeric, 4-60 chars)
+    // Skip pure header lines with no usable data after colon
+    // A card line must have format:  Name: code  or  Name: code [logo:URL]
+    var firstColon=line.indexOf(":");
+    if(firstColon<1) return;
+    // Extract optional [logo:URL] annotation at end
+    var logoUrl=null;
+    var logoMatch=line.match(/\[logo:(https?:\/\/[^\]]+)\]/);
+    if(logoMatch){
+      logoUrl=logoMatch[1];
+      line=line.replace(logoMatch[0],"").trim();
+    }
+    // Split on FIRST colon to get name : rest
+    var name=line.substring(0,firstColon).trim();
+    var code=line.substring(firstColon+1).trim();
+    // Validate name
     if(!name || name.length<1 || name.length>50) return;
-    if(!code || code.length<4 || code.length>60) return;
-    if(!/^[A-Za-z0-9\-\.\s]+$/.test(code)) return;
-    // Skip obviously non-card lines (URLs, emails etc.)
-    if(code.indexOf("@")>=0||code.indexOf("http")>=0) return;
-    results.push({ name:name, code:code });
+    // Validate code: non-empty, reasonable length, not a URL/email, not pure punctuation
+    if(!code || code.length<2 || code.length>80) return;
+    if(code.indexOf("@")>=0||code.indexOf("http")===0) return;
+    if(code.indexOf("//")===0) return;
+    // Must have at least one alphanumeric char
+    if(!/[A-Za-z0-9]/.test(code)) return;
+    results.push({ name:name, code:code, logoUrl:logoUrl });
   });
   return results;
 }
@@ -1027,7 +1042,7 @@ function parseAndPreview(){
   document.getElementById("imp-dup-count").textContent=dups;
   // Update confirm button label
   document.getElementById("import-confirm-btn").innerHTML=
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Importa '+newOnes+" nuova"+(newOnes===1?"":"e");
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Importa '+newOnes+" nuova/e";
 
   showImportStep("preview");
 }
@@ -1040,11 +1055,15 @@ function confirmImport(){
     var key=item.name.toLowerCase()+"|"+item.code;
     if(!existingKeys[key]){
       S.cards.unshift({ id:uid(), name:item.name, code:item.code, addedAt:Date.now() });
+      // Apply logo URL if provided and not already customised
+      if(item.logoUrl && !CUSTOM_LOGOS[item.name]){
+        CUSTOM_LOGOS[item.name]=item.logoUrl;
+      }
       imported++;
     }
   });
-  save(); renderGrid();
-  document.getElementById("imp-done-msg").textContent=imported+" card importata"+(imported===1?"":"e")+"!";
+  save(); saveLogos(); renderGrid();
+  document.getElementById("imp-done-msg").textContent=imported+" card importata/e!";
   showImportStep("done");
 }
 // ── END IMPORT ──────────────────────────────────────
@@ -1101,18 +1120,32 @@ function deleteCard(){
 
 function shareWA(){
   if(!S.selected) return;
-  var t="La mia card QuickCard:\n\n"+S.selected.name+": "+S.selected.code;
+  var line=S.selected.name+": "+S.selected.code;
+  var logo=CUSTOM_LOGOS[S.selected.name];
+  if(logo && logo.indexOf("http")===0) line+=" [logo:"+logo+"]";
+  var t="La mia card QuickCard:\n\n"+line;
   window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
 }
 function shareMail(){
   if(!S.selected) return;
   var sub="Card fedeltà — "+S.selected.name;
-  var body="Ciao!\n\nLa mia card QuickCard:\n\n"+S.selected.name+": "+S.selected.code+"\n\nSaluti!";
+  var line=S.selected.name+": "+S.selected.code;
+  var logo=CUSTOM_LOGOS[S.selected.name];
+  if(logo && logo.indexOf("http")===0) line+=" [logo:"+logo+"]";
+  var body="Ciao!\n\nLa mia card QuickCard:\n\n"+line+"\n\nSaluti!";
   location.href="mailto:?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
 }
 function exportAll(){
   if(!S.cards.length){ toast("Nessuna card da esportare"); return; }
-  var lines=S.cards.map(function(c){ return c.name+": "+c.code; }).join("\n");
+  var lines=S.cards.map(function(c){
+    var line=c.name+": "+c.code;
+    // Attach custom logo URL if present and it's a real URL (not base64)
+    var logo=CUSTOM_LOGOS[c.name];
+    if(logo && logo.indexOf("http")===0){
+      line+=" [logo:"+logo+"]";
+    }
+    return line;
+  }).join("\n");
   var text="Le mie card QuickCard:\n\n"+lines;
   if(navigator.share){ navigator.share({title:"Le mie card",text:text}).catch(function(){}); }
   else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ toast("Copiate negli appunti!"); }); }
@@ -1424,7 +1457,7 @@ function applyLogos(){
   saveLogos();
   renderGrid();
   closeModal("modal-logos");
-  toast("✓ "+applied+" logo"+(applied===1?"":" applicati"));
+  toast("Loghi applicati: "+applied);
 }
 
 
@@ -1558,6 +1591,17 @@ function saveEditCard(){
   toast("✓ Card aggiornata");
 }
 
+function deleteAllCards(){
+  if(!S.cards.length){ toast("Nessuna card da eliminare"); return; }
+  var n=S.cards.length;
+  if(!confirm("Eliminare definitivamente tutte le "+n+" card? L'operazione non è reversibile.")) return;
+  S.cards=[];
+  save();
+  renderGrid();
+  renderProfileCount();
+  toast("Tutte le card eliminate");
+}
+
 function attachEvents(){
   document.querySelectorAll(".tab-item").forEach(function(b){ b.addEventListener("click",function(){ switchTab(b.dataset.tab); }); });
   document.getElementById("fab").addEventListener("click",openAdd);
@@ -1590,6 +1634,7 @@ function attachEvents(){
   document.getElementById("share-wa").addEventListener("click",shareWA);
   document.getElementById("share-mail").addEventListener("click",shareMail);
   document.getElementById("btn-export").addEventListener("click",exportAll);
+  document.getElementById("btn-delete-all").addEventListener("click",deleteAllCards);
   document.getElementById("btn-palettes").addEventListener("click",openPalettes);
   document.getElementById("close-palettes").addEventListener("click",function(){ closeModal("modal-palettes"); });
   document.getElementById("modal-palettes").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-palettes"); });
