@@ -546,9 +546,14 @@ input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border
     <div class="detail-topbar">
       <button class="btn-back" id="close-detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span class="detail-topbar-title" id="detail-topbar-name"></span>
-      <button class="icon-btn" id="detail-color-btn" title="Cambia colore card">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
-      </button>
+      <div style="display:flex;gap:8px">
+        <button class="icon-btn" id="detail-edit-btn" title="Modifica card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+        <button class="icon-btn" id="detail-color-btn" title="Cambia colore card">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+        </button>
+      </div>
     </div>
     <div class="detail-hero" id="detail-hero">
       <div class="dh-top">
@@ -655,6 +660,39 @@ input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border
       <button class="btn-p" id="cp-save-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
         Salva
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL EDIT CARD -->
+<div id="modal-edit" class="modal-overlay" aria-hidden="true">
+  <div class="bottom-sheet">
+    <div class="sheet-pill"></div>
+    <div class="sheet-head">
+      <h2 class="sheet-title">Modifica card</h2>
+      <button class="icon-btn" id="close-edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="field">
+      <label class="field-label">Nome negozio</label>
+      <div class="field-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <input id="edit-name" type="text" placeholder="Nome negozio" maxlength="40">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Codice tessera</label>
+      <div class="field-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5v14M7 5v14M11 5v8M15 5v14M19 5v14M21 5v14M13 9v10"/></svg>
+        <input id="edit-code" type="text" placeholder="Codice" maxlength="60" inputmode="text">
+      </div>
+    </div>
+    <div class="btn-row" style="margin-top:6px">
+      <button class="btn-s" id="edit-cancel-btn">Annulla</button>
+      <button class="btn-p" id="edit-save-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Salva modifiche
       </button>
     </div>
   </div>
@@ -1063,13 +1101,13 @@ function deleteCard(){
 
 function shareWA(){
   if(!S.selected) return;
-  var t="Card fedeltà — "+S.selected.name+"\nCodice: "+S.selected.code;
+  var t="La mia card QuickCard:\n\n"+S.selected.name+": "+S.selected.code;
   window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
 }
 function shareMail(){
   if(!S.selected) return;
   var sub="Card fedeltà — "+S.selected.name;
-  var body="Ciao!\n\nTi condivido la mia card fedeltà:\n\n"+S.selected.name+"\n"+S.selected.code+"\n\nSaluti!";
+  var body="Ciao!\n\nLa mia card QuickCard:\n\n"+S.selected.name+": "+S.selected.code+"\n\nSaluti!";
   location.href="mailto:?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
 }
 function exportAll(){
@@ -1490,6 +1528,36 @@ function saveCardColor(){
   toast(_cpSelectedColor?"✓ Colore salvato":"✓ Colore ripristinato");
 }
 
+function openEditCard(){
+  if(!S.selected) return;
+  document.getElementById("edit-name").value=S.selected.name;
+  document.getElementById("edit-code").value=S.selected.code;
+  openModal("modal-edit");
+}
+
+function saveEditCard(){
+  if(!S.selected) return;
+  var name=document.getElementById("edit-name").value.trim();
+  var code=document.getElementById("edit-code").value.trim();
+  if(!name){ toast("Inserisci il nome del negozio"); return; }
+  if(!code){ toast("Inserisci il codice"); return; }
+  var oldName=S.selected.name;
+  S.selected.name=name;
+  S.selected.code=code;
+  // If name changed, migrate custom logo key
+  if(oldName!==name && CUSTOM_LOGOS[oldName]){
+    CUSTOM_LOGOS[name]=CUSTOM_LOGOS[oldName];
+    delete CUSTOM_LOGOS[oldName];
+    saveLogos();
+  }
+  save();
+  renderGrid();
+  // Refresh detail view
+  openDetail(S.selected.id);
+  closeModal("modal-edit");
+  toast("✓ Card aggiornata");
+}
+
 function attachEvents(){
   document.querySelectorAll(".tab-item").forEach(function(b){ b.addEventListener("click",function(){ switchTab(b.dataset.tab); }); });
   document.getElementById("fab").addEventListener("click",openAdd);
@@ -1507,6 +1575,13 @@ function attachEvents(){
     var c=e.target.closest("[data-id]"); if(c) openDetail(c.dataset.id);
   });
   document.getElementById("close-detail").addEventListener("click",closeDetail);
+  document.getElementById("detail-edit-btn").addEventListener("click",openEditCard);
+  document.getElementById("close-edit").addEventListener("click",function(){ closeModal("modal-edit"); });
+  document.getElementById("modal-edit").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-edit"); });
+  document.getElementById("edit-save-btn").addEventListener("click",saveEditCard);
+  document.getElementById("edit-cancel-btn").addEventListener("click",function(){ closeModal("modal-edit"); });
+  document.getElementById("edit-name").addEventListener("keydown",function(e){ if(e.key==="Enter") document.getElementById("edit-code").focus(); });
+  document.getElementById("edit-code").addEventListener("keydown",function(e){ if(e.key==="Enter") saveEditCard(); });
   document.getElementById("detail-color-btn").addEventListener("click",function(){
     if(S.selected) openColorPicker(S.selected);
   });
@@ -1566,7 +1641,7 @@ function attachEvents(){
   ds.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&ds.scrollTop<5) closeDetail(); },{passive:true});
   document.querySelectorAll(".bottom-sheet").forEach(function(bs){
     bs.addEventListener("touchstart",function(e){ ty=e.touches[0].clientY; },{passive:true});
-    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); closeModal("modal-logos"); closeModal("modal-palettes"); closeModal("modal-colorpick"); } },{passive:true});
+    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); closeModal("modal-logos"); closeModal("modal-palettes"); closeModal("modal-colorpick"); closeModal("modal-edit"); } },{passive:true});
   });
 }
 
