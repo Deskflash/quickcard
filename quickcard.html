@@ -721,6 +721,29 @@ var KEY="quickcard_v1";
 var S={cards:[],selected:null,cameraReader:null,searchQ:"",importParsed:[],sortMode:"freq"};
 var OPEN_COUNTS={};
 var CUSTOM_LOGOS={};
+var CARD_COLORS={};
+var ACTIVE_PALETTE="auto";
+var PALETTES=[
+  {id:"auto",   name:"Automatico", desc:"Colore unico per negozio", colors:[]},
+  {id:"sunset", name:"Tramonto",   desc:"Rossi, aranci, viola",
+   colors:["#C0392B","#E74C3C","#E67E22","#D35400","#8E44AD","#9B59B6","#F39C12"]},
+  {id:"ocean",  name:"Oceano",     desc:"Blu e verdi profondi",
+   colors:["#1A5276","#1F618D","#148F77","#0E6655","#17A589","#1ABC9C","#2471A3"]},
+  {id:"forest", name:"Foresta",    desc:"Verdi naturali",
+   colors:["#145A32","#1E8449","#196F3D","#239B56","#27AE60","#1D8348","#0B5345"]},
+  {id:"pastel", name:"Pastello",   desc:"Toni soft e delicati",
+   colors:["#E74C8B","#5DADE2","#45B39D","#F5CBA7","#A569BD","#F0B27A","#52BE80"]},
+  {id:"mono",   name:"Grafite",    desc:"Grigi eleganti",
+   colors:["#2C3E50","#34495E","#5D6D7E","#717D7E","#839192","#2E4057","#424949"]},
+  {id:"neon",   name:"Neon",       desc:"Colori vivaci e accesi",
+   colors:["#FF006E","#FB5607","#FFBE0B","#8338EC","#3A86FF","#06D6A0","#FF4500"]},
+];
+var COLOR_PRESETS=[
+  "#C0392B","#E74C3C","#E67E22","#F39C12","#F1C40F",
+  "#27AE60","#16A085","#2980B9","#8E44AD","#2C3E50",
+  "#1ABC9C","#3498DB","#9B59B6","#E91E63","#FF5722",
+  "#795548","#607D8B","#00BCD4","#4CAF50","#FF9800",
+];
 
 function load(){
   try{ S.cards=JSON.parse(localStorage.getItem(KEY)||"[]"); }catch(e){ S.cards=[]; }
