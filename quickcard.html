@@ -500,8 +500,21 @@ input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border
 
     <div id="import-step-paste">
       <div class="import-hint">
-        <strong>Come funziona:</strong> incolla qui il testo ricevuto da WhatsApp o Email. Il formato atteso è quello dell'esportazione QuickCard:<br><br>
-        <code style="font-size:12px;opacity:.8">Esselunga: 1234567890<br>Conad: 0987654321</code>
+        <strong>Due modi per importare:</strong><br>
+        1. Carica il file <code style="font-size:11px">.qcards</code> ricevuto<br>
+        2. Oppure incolla il testo (formato: <code style="font-size:11px">Nome: codice</code>)
+      </div>
+      <div class="btn-row" style="margin-bottom:16px">
+        <button class="btn-p" id="import-file-btn" style="font-size:14px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Carica file .qcards
+        </button>
+        <input type="file" id="import-file-input" accept=".qcards,application/json" style="display:none">
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:12px;color:var(--text2);font-weight:600">oppure</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
       </div>
       <div class="field">
         <label class="field-label">Testo da importare</label>
@@ -971,6 +984,74 @@ function showImportStep(step){
   document.getElementById("import-step-done").classList.toggle("hidden",step!=="done");
 }
 
+function parseQCardsFile(json){
+  try{
+    var data=JSON.parse(json);
+    if(!data || !Array.isArray(data.cards)) return [];
+    return data.cards.filter(function(c){
+      return c && c.name && c.code && c.name.length>0 && c.code.length>0;
+    }).map(function(c){
+      return {name:String(c.name).trim(), code:String(c.code).trim(), logoUrl:c.logo||null};
+    });
+  }catch(e){ return []; }
+}
+
+function importFromFile(file){
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    var parsed=parseQCardsFile(ev.target.result);
+    if(!parsed.length){ toast("File non valido o vuoto"); return; }
+    S.importParsed=parsed;
+    // Show preview directly
+    document.getElementById("import-text").value="";
+    buildImportPreview(parsed);
+    showImportStep("preview");
+  };
+  reader.readAsText(file);
+}
+
+function buildImportPreview(parsed){
+  var existingKeys={};
+  S.cards.forEach(function(c){ existingKeys[c.name.toLowerCase()+"|"+c.code]=true; });
+  var newOnes=0,dups=0;
+  var list=document.getElementById("import-preview-list");
+  list.innerHTML="";
+  parsed.forEach(function(item){
+    var isDup=!!existingKeys[item.name.toLowerCase()+"|"+item.code];
+    if(isDup) dups++; else newOnes++;
+    var row=document.createElement("div"); row.className="import-row";
+    var ic=document.createElement("div"); ic.className="import-ic";
+    ic.style.background=cardGradient(item.name,null);
+    // Use imported logo if available, else auto
+    var logoSrc=item.logoUrl||getLogoUrl(item.name);
+    if(logoSrc){
+      var img=document.createElement("img"); img.src=logoSrc; img.alt=item.name.charAt(0);
+      img.style.cssText="width:100%;height:100%;object-fit:contain;padding:3px;display:block";
+      img.addEventListener("error",function(){ this.style.display="none"; ic.textContent=item.name.charAt(0).toUpperCase(); });
+      ic.appendChild(img);
+    } else { ic.textContent=item.name.charAt(0).toUpperCase(); }
+    var info=document.createElement("div"); info.style.cssText="flex:1;min-width:0";
+    var nm=document.createElement("div"); nm.className="import-name"; nm.textContent=item.name;
+    var cd=document.createElement("div"); cd.className="import-code"; cd.textContent=item.code;
+    info.appendChild(nm); info.appendChild(cd);
+    var badge=document.createElement("div");
+    if(isDup){
+      badge.className="import-dup";
+      badge.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><line x1='5' y1='12' x2='19' y2='12'/></svg>";
+    } else {
+      badge.className="import-check";
+      badge.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>";
+    }
+    row.appendChild(ic); row.appendChild(info); row.appendChild(badge);
+    list.appendChild(row);
+  });
+  document.getElementById("imp-new-count").textContent=newOnes;
+  document.getElementById("imp-dup-count").textContent=dups;
+  var btn=document.getElementById("import-confirm-btn");
+  btn.innerHTML="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg>Importa "+newOnes+" nuova/e";
+}
+
 function parseImportText(raw){
   var lines=raw.split("\n");
   var results=[];
@@ -1008,42 +1089,9 @@ function parseAndPreview(){
   var raw=document.getElementById("import-text").value.trim();
   if(!raw){ toast("Incolla prima il testo da importare"); return; }
   var parsed=parseImportText(raw);
-  if(!parsed.length){ toast("Nessuna card trovata nel testo — controlla il formato"); return; }
+  if(!parsed.length){ toast("Nessuna card trovata — controlla il formato"); return; }
   S.importParsed=parsed;
-
-  // Check duplicates
-  var newOnes=0,dups=0;
-  var existingKeys={};
-  S.cards.forEach(function(c){ existingKeys[c.name.toLowerCase()+"|"+c.code]=true; });
-
-  var previewHTML="";
-  parsed.forEach(function(item){
-    var isDup=!!existingKeys[item.name.toLowerCase()+"|"+item.code];
-    if(isDup) dups++; else newOnes++;
-    var col=cardGradient(item.name);
-    var initial=item.name.charAt(0).toUpperCase();
-    var logoUrl=getLogoUrl(item.name);
-    var logoHtml=logoUrl
-      ? "<img src='"+logoUrl+"' style='width:100%;height:100%;object-fit:contain;padding:3px;display:block' onerror=\"this.style.display='none';this.parentNode.textContent='"+initial+"'\">"
-      : initial;
-    previewHTML+="<div class='import-row'>";
-    previewHTML+="<div class='import-ic' style='background:"+col+"'>"+logoHtml+"</div>";
-    previewHTML+="<div style='flex:1;min-width:0'><div class='import-name'>"+esc(item.name)+"</div><div class='import-code'>"+esc(item.code)+"</div></div>";
-    if(isDup){
-      previewHTML+="<div class='import-dup' title='Già presente'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><line x1='5' y1='12' x2='19' y2='12'/></svg></div>";
-    } else {
-      previewHTML+="<div class='import-check'><svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round'><polyline points='20 6 9 17 4 12'/></svg></div>";
-    }
-    previewHTML+="</div>";
-  });
-
-  document.getElementById("import-preview-list").innerHTML=previewHTML;
-  document.getElementById("imp-new-count").textContent=newOnes;
-  document.getElementById("imp-dup-count").textContent=dups;
-  // Update confirm button label
-  document.getElementById("import-confirm-btn").innerHTML=
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Importa '+newOnes+" nuova/e";
-
+  buildImportPreview(parsed);
   showImportStep("preview");
 }
 
@@ -1120,8 +1168,14 @@ function deleteCard(){
 
 function shareWA(){
   if(!S.selected) return;
-  var line=S.selected.name+": "+S.selected.code;
-  var logo=CUSTOM_LOGOS[S.selected.name];
+  var c=S.selected;
+  var logo=CUSTOM_LOGOS[c.name];
+  // If logo is base64, export as file; otherwise send as text
+  if(logo && logo.indexOf("data:")===0){
+    exportSingleCard(c);
+    return;
+  }
+  var line=c.name+": "+c.code;
   if(logo && logo.indexOf("http")===0) line+=" [logo:"+logo+"]";
   var t="La mia card QuickCard:\n\n"+line;
   window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
@@ -1129,27 +1183,48 @@ function shareWA(){
 function shareMail(){
   if(!S.selected) return;
   var sub="Card fedeltà — "+S.selected.name;
-  var line=S.selected.name+": "+S.selected.code;
   var logo=CUSTOM_LOGOS[S.selected.name];
+  var line=S.selected.name+": "+S.selected.code;
   if(logo && logo.indexOf("http")===0) line+=" [logo:"+logo+"]";
   var body="Ciao!\n\nLa mia card QuickCard:\n\n"+line+"\n\nSaluti!";
   location.href="mailto:?subject="+encodeURIComponent(sub)+"&body="+encodeURIComponent(body);
 }
 function exportAll(){
   if(!S.cards.length){ toast("Nessuna card da esportare"); return; }
-  var lines=S.cards.map(function(c){
-    var line=c.name+": "+c.code;
-    // Attach custom logo URL if present and it's a real URL (not base64)
-    var logo=CUSTOM_LOGOS[c.name];
-    if(logo && logo.indexOf("http")===0){
-      line+=" [logo:"+logo+"]";
+  var data={
+    v:2,
+    exportedAt:new Date().toISOString(),
+    cards:S.cards.map(function(c){
+      var obj={name:c.name,code:c.code};
+      var logo=CUSTOM_LOGOS[c.name];
+      if(logo) obj.logo=logo;  // include both URL and base64 logos
+      return obj;
+    })
+  };
+  var json=JSON.stringify(data,null,2);
+  var blob=new Blob([json],{type:"application/json"});
+  var url=URL.createObjectURL(blob);
+  var ts=new Date().toISOString().slice(0,10);
+  var filename="quickcard-"+ts+".qcards";
+  // Try Web Share API with file (Android Chrome supports it)
+  if(navigator.share && navigator.canShare){
+    var file=new File([blob],filename,{type:"application/json"});
+    if(navigator.canShare({files:[file]})){
+      navigator.share({
+        title:"Le mie card QuickCard",
+        text:"Le mie "+data.cards.length+" card QuickCard",
+        files:[file]
+      }).catch(function(){});
+      return;
     }
-    return line;
-  }).join("\n");
-  var text="Le mie card QuickCard:\n\n"+lines;
-  if(navigator.share){ navigator.share({title:"Le mie card",text:text}).catch(function(){}); }
-  else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ toast("Copiate negli appunti!"); }); }
-  else{ prompt("Copia:",text); }
+  }
+  // Fallback: direct download
+  var a=document.createElement("a");
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },2000);
+  toast("File "+filename+" scaricato — condividilo su WhatsApp o Email");
 }
 
 function openModal(id){ var m=document.getElementById(id); m.classList.add("open"); m.setAttribute("aria-hidden","false"); }
@@ -1602,6 +1677,27 @@ function deleteAllCards(){
   toast("Tutte le card eliminate");
 }
 
+function exportSingleCard(card){
+  var logo=CUSTOM_LOGOS[card.name];
+  var data={v:2,exportedAt:new Date().toISOString(),cards:[{name:card.name,code:card.code,logo:logo||undefined}]};
+  var json=JSON.stringify(data,null,2);
+  var blob=new Blob([json],{type:"application/json"});
+  var filename="quickcard-"+card.name.toLowerCase().replace(/\s+/g,"-")+".qcards";
+  if(navigator.share && navigator.canShare){
+    var file=new File([blob],filename,{type:"application/json"});
+    if(navigator.canShare({files:[file]})){
+      navigator.share({title:"Card "+card.name,files:[file]}).catch(function(){});
+      return;
+    }
+  }
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); },2000);
+  toast("File "+filename+" scaricato");
+}
+
 function attachEvents(){
   document.querySelectorAll(".tab-item").forEach(function(b){ b.addEventListener("click",function(){ switchTab(b.dataset.tab); }); });
   document.getElementById("fab").addEventListener("click",openAdd);
@@ -1660,6 +1756,13 @@ function attachEvents(){
   document.getElementById("btn-import").addEventListener("click",openImport);
   document.getElementById("close-import").addEventListener("click",closeImport);
   document.getElementById("modal-import").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeImport(); });
+  document.getElementById("import-file-btn").addEventListener("click",function(){
+    document.getElementById("import-file-input").click();
+  });
+  document.getElementById("import-file-input").addEventListener("change",function(){
+    importFromFile(this.files&&this.files[0]);
+    this.value="";
+  });
   document.getElementById("import-paste-btn").addEventListener("click",function(){
     if(navigator.clipboard&&navigator.clipboard.readText){
       navigator.clipboard.readText().then(function(t){
