@@ -285,6 +285,28 @@ svg{display:block;flex-shrink:0}
 .logo-toggle.on{background:var(--accent);border-color:var(--accent)}
 .logo-toggle svg{width:13px;height:13px;color:#fff}
 
+
+/* PALETTE & COLOR PICKER */
+.palette-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.palette-card{border-radius:14px;border:2px solid transparent;padding:10px 8px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2)}
+.palette-card.active{border-color:var(--accent);background:var(--surface)}
+.palette-swatches{display:flex;gap:3px;justify-content:center;margin-bottom:7px;height:18px;align-items:center}
+.palette-swatch{width:16px;height:16px;border-radius:50%;flex-shrink:0}
+.palette-auto-swatch{display:flex;gap:1px}
+.palette-auto-swatch span{width:8px;height:16px;border-radius:2px}
+.palette-name{font-size:11.5px;font-weight:700;color:var(--text)}
+.palette-desc{font-size:10px;color:var(--text2);margin-top:2px}
+
+/* CARD COLOR PICKER MODAL */
+.color-picker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:16px}
+.cp-swatch{width:100%;aspect-ratio:1;border-radius:12px;cursor:pointer;border:2.5px solid transparent;transition:transform .15s,border-color .15s;position:relative}
+.cp-swatch:active{transform:scale(.9)}
+.cp-swatch.selected{border-color:#fff;box-shadow:0 0 0 2px var(--accent)}
+.cp-swatch.is-auto::after{content:"A";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:rgba(255,255,255,.8)}
+.cp-custom-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.cp-custom-lbl{font-size:13px;font-weight:600;color:var(--text);flex:1}
+input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border-radius:10px;padding:2px;background:var(--surface2);cursor:pointer}
+
 /* TOAST */
 .toast{position:fixed;bottom:calc(var(--tab-h) + var(--safe-b) + 84px);left:50%;transform:translateX(-50%) translateY(16px);background:color-mix(in srgb,var(--text) 90%,transparent);color:var(--bg);padding:11px 20px;border-radius:50px;font-size:13.5px;font-weight:600;white-space:nowrap;z-index:999;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -321,6 +343,10 @@ svg{display:block;flex-shrink:0}
         Frequenti
       </button>
     </div>
+  </div>
+  <div style="padding:0 20px 8px;display:flex;align-items:center;gap:5px">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color:var(--text2);flex-shrink:0"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+    <span style="font-size:11px;color:var(--text2);font-weight:500">Tieni premuto su una card per cambiarne il colore</span>
   </div>
   <div class="cards-scroll">
     <div id="cards-grid" class="cards-grid"></div>
@@ -364,11 +390,15 @@ svg{display:block;flex-shrink:0}
         Assegna loghi
         <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
+      <button class="settings-row" id="btn-palettes">
+        <span class="sr-icon" style="background:rgba(245,158,11,.1);color:#F59E0B"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg></span>
+        Scale di colori
+        <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
     </div>
     <div class="settings-block">
       <p class="settings-label">Info</p>
       <ul class="info-bullets">
-        <li>Funziona offline dopo il primo caricamento</li>
         <li>I dati sono salvati solo sul tuo dispositivo</li>
       </ul>
     </div>
@@ -516,7 +546,9 @@ svg{display:block;flex-shrink:0}
     <div class="detail-topbar">
       <button class="btn-back" id="close-detail"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg></button>
       <span class="detail-topbar-title" id="detail-topbar-name"></span>
-      <div style="width:36px"></div>
+      <button class="icon-btn" id="detail-color-btn" title="Cambia colore card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+      </button>
     </div>
     <div class="detail-hero" id="detail-hero">
       <div class="dh-top">
@@ -578,6 +610,52 @@ svg{display:block;flex-shrink:0}
     <div id="logos-empty" class="hidden" style="text-align:center;padding:28px 0">
       <p style="font-size:15px;font-weight:700;margin-bottom:8px">Nessuna card salvata</p>
       <p style="font-size:13.5px;color:var(--text2)">Aggiungi prima qualche card.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL PALETTES -->
+<div id="modal-palettes" class="modal-overlay" aria-hidden="true">
+  <div class="bottom-sheet">
+    <div class="sheet-pill"></div>
+    <div class="sheet-head">
+      <h2 class="sheet-title">Scale di colori</h2>
+      <button class="icon-btn" id="close-palettes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <p style="font-size:13.5px;color:var(--text2);margin-bottom:16px">Scegli la scala di colori per tutte le card. I colori personalizzati per singola card hanno sempre la precedenza.</p>
+    <div class="palette-grid" id="palette-grid"></div>
+    <button class="btn-p w100" id="palette-apply-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Applica
+    </button>
+  </div>
+</div>
+
+<!-- MODAL CARD COLOR PICKER -->
+<div id="modal-colorpick" class="modal-overlay" aria-hidden="true">
+  <div class="bottom-sheet">
+    <div class="sheet-pill"></div>
+    <div class="sheet-head">
+      <h2 class="sheet-title">Colore card</h2>
+      <button class="icon-btn" id="close-colorpick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:14px" id="cp-card-name-lbl"></p>
+    <div class="color-picker-grid" id="cp-swatches"></div>
+    <div class="cp-custom-row">
+      <span class="cp-custom-lbl">Colore personalizzato</span>
+      <input type="color" id="cp-custom-color" value="#16A36A">
+      <button class="btn-s" id="cp-custom-apply" style="flex:none;padding:8px 14px;font-size:13px">Usa</button>
+    </div>
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn-s" id="cp-reset-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Ripristina automatico
+      </button>
+      <button class="btn-p" id="cp-save-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Salva
+      </button>
     </div>
   </div>
 </div>
@@ -660,7 +738,25 @@ function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(
 function fmt(ts){ return new Date(ts).toLocaleDateString("it-IT",{day:"2-digit",month:"long",year:"numeric"}); }
 function hash(s){ var h=0; for(var i=0;i<s.length;i++) h=Math.imul(31,h)+s.charCodeAt(i)|0; return Math.abs(h); }
 
-function cardGradient(name){
+function shiftHex(hex, amt){
+  try{
+    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    r=Math.min(255,r+amt);g=Math.min(255,g+amt);b=Math.min(255,b+amt);
+    return "#"+[r,g,b].map(function(v){return v.toString(16).padStart(2,"0");}).join("");
+  }catch(e){return hex;}
+}
+function cardGradient(name, cardId){
+  if(cardId&&CARD_COLORS[cardId]){
+    var c=CARD_COLORS[cardId];
+    return "linear-gradient(135deg,"+c+","+shiftHex(c,28)+")";
+  }
+  if(ACTIVE_PALETTE!=="auto"){
+    var pal=PALETTES.find(function(p){return p.id===ACTIVE_PALETTE;});
+    if(pal&&pal.colors.length){
+      var col=pal.colors[hash(name)%pal.colors.length];
+      return "linear-gradient(135deg,"+col+","+shiftHex(col,22)+")";
+    }
+  }
   var h=hash(name),hue=h%360,s=50+hash(name+"s")%24,l=32+hash(name+"l")%16;
   return "linear-gradient(135deg,hsl("+hue+","+s+"%,"+l+"%),hsl("+((hue+38)%360)+","+(s+8)+"%,"+(l+12)+"%))";}
 
@@ -695,7 +791,7 @@ function renderGrid(){
     var el=document.createElement("div");
     el.className="card-item";el.dataset.id=c.id;
     el.setAttribute("role","button");el.setAttribute("tabindex","0");
-    el.style.background=cardGradient(c.name);
+    el.style.background=cardGradient(c.name,c.id);
     el.style.animationDelay=(Math.min(i,5)*0.04)+"s";
     var top=document.createElement("div");top.className="card-top";
     var nm=document.createElement("p");nm.className="card-name";nm.textContent=c.name;
@@ -704,6 +800,18 @@ function renderGrid(){
     var badge=document.createElement("div");badge.className="card-badge";
     badge.appendChild(makeBadge(c.name));
     el.appendChild(top);el.appendChild(badge);
+    // Long press to change card color
+    var lpTimer=null;
+    el.addEventListener("touchstart",function(e){
+      lpTimer=setTimeout(function(){
+        lpTimer=null;
+        openColorPicker(c);
+      },600);
+    },{passive:true});
+    el.addEventListener("touchend",function(){ if(lpTimer){clearTimeout(lpTimer);lpTimer=null;} },{passive:true});
+    el.addEventListener("touchmove",function(){ if(lpTimer){clearTimeout(lpTimer);lpTimer=null;} },{passive:true});
+    // Also right-click on desktop
+    el.addEventListener("contextmenu",function(e){ e.preventDefault(); openColorPicker(c); });
     grid.appendChild(el);
   });
 }
@@ -880,7 +988,7 @@ function openDetail(id){
   S.selected=card;
   OPEN_COUNTS[id]=(OPEN_COUNTS[id]||0)+1;
   save();
-  document.getElementById("detail-hero").style.background=cardGradient(card.name);
+  document.getElementById("detail-hero").style.background=cardGradient(card.name,card.id);
   document.getElementById("detail-topbar-name").textContent=card.name;
   var dhl=document.getElementById("dh-logo");
   dhl.innerHTML="";
@@ -1252,6 +1360,107 @@ function applyLogos(){
   toast("✓ "+applied+" logo"+(applied===1?"":" applicati"));
 }
 
+
+// ── PALETTE FUNCTIONS ──────────────────────────────────────
+var _selectedPaletteId=null;
+
+function openPalettes(){
+  _selectedPaletteId=ACTIVE_PALETTE;
+  var grid=document.getElementById("palette-grid");
+  grid.innerHTML="";
+  PALETTES.forEach(function(pal){
+    var card=document.createElement("div");
+    card.className="palette-card"+(pal.id===_selectedPaletteId?" active":"");
+    card.dataset.pid=pal.id;
+    // Swatches
+    var sw=document.createElement("div");
+    sw.className="palette-swatches";
+    if(pal.id==="auto"){
+      var aswrap=document.createElement("div");
+      aswrap.className="palette-auto-swatch";
+      ["#E74C3C","#3498DB","#27AE60","#F39C12"].forEach(function(c){
+        var s=document.createElement("span"); s.style.background=c; aswrap.appendChild(s);
+      });
+      sw.appendChild(aswrap);
+    } else {
+      pal.colors.slice(0,5).forEach(function(c){
+        var s=document.createElement("div"); s.className="palette-swatch"; s.style.background=c; sw.appendChild(s);
+      });
+    }
+    var nm=document.createElement("div"); nm.className="palette-name"; nm.textContent=pal.name;
+    var ds=document.createElement("div"); ds.className="palette-desc"; ds.textContent=pal.desc;
+    card.appendChild(sw); card.appendChild(nm); card.appendChild(ds);
+    card.addEventListener("click",function(){
+      _selectedPaletteId=pal.id;
+      document.querySelectorAll(".palette-card").forEach(function(c){ c.classList.remove("active"); });
+      card.classList.add("active");
+    });
+    grid.appendChild(card);
+  });
+  openModal("modal-palettes");
+}
+
+function applyPalette(){
+  ACTIVE_PALETTE=_selectedPaletteId||"auto";
+  saveColors();
+  renderGrid();
+  closeModal("modal-palettes");
+  var name=PALETTES.find(function(p){return p.id===ACTIVE_PALETTE;});
+  toast("✓ Palette "+(name?name.name:"Automatica")+" applicata");
+}
+
+// ── COLOR PICKER FUNCTIONS ──────────────────────────────────
+var _cpCard=null;
+var _cpSelectedColor=null;
+
+function openColorPicker(card){
+  _cpCard=card;
+  _cpSelectedColor=CARD_COLORS[card.id]||null;
+  document.getElementById("cp-card-name-lbl").textContent="Card: "+card.name;
+  document.getElementById("cp-custom-color").value=_cpSelectedColor||"#16A36A";
+
+  var swGrid=document.getElementById("cp-swatches");
+  swGrid.innerHTML="";
+
+  // Auto swatch
+  var autoSw=document.createElement("div");
+  var autoGrad=cardGradient(card.name,null);
+  autoSw.className="cp-swatch is-auto"+(!_cpSelectedColor?" selected":"");
+  autoSw.style.background=autoGrad;
+  autoSw.title="Automatico";
+  autoSw.addEventListener("click",function(){
+    _cpSelectedColor=null;
+    document.querySelectorAll(".cp-swatch").forEach(function(s){ s.classList.remove("selected"); });
+    autoSw.classList.add("selected");
+    document.getElementById("cp-custom-color").value="#16A36A";
+  });
+  swGrid.appendChild(autoSw);
+
+  COLOR_PRESETS.forEach(function(c){
+    var sw=document.createElement("div");
+    sw.className="cp-swatch"+(_cpSelectedColor===c?" selected":"");
+    sw.style.background="linear-gradient(135deg,"+c+","+shiftHex(c,28)+")";
+    sw.addEventListener("click",function(){
+      _cpSelectedColor=c;
+      document.querySelectorAll(".cp-swatch").forEach(function(s){ s.classList.remove("selected"); });
+      sw.classList.add("selected");
+      document.getElementById("cp-custom-color").value=c;
+    });
+    swGrid.appendChild(sw);
+  });
+  openModal("modal-colorpick");
+}
+
+function saveCardColor(){
+  if(!_cpCard) return;
+  if(_cpSelectedColor){ CARD_COLORS[_cpCard.id]=_cpSelectedColor; }
+  else { delete CARD_COLORS[_cpCard.id]; }
+  saveColors();
+  renderGrid();
+  closeModal("modal-colorpick");
+  toast(_cpSelectedColor?"✓ Colore salvato":"✓ Colore ripristinato");
+}
+
 function attachEvents(){
   document.querySelectorAll(".tab-item").forEach(function(b){ b.addEventListener("click",function(){ switchTab(b.dataset.tab); }); });
   document.getElementById("fab").addEventListener("click",openAdd);
@@ -1269,11 +1478,28 @@ function attachEvents(){
     var c=e.target.closest("[data-id]"); if(c) openDetail(c.dataset.id);
   });
   document.getElementById("close-detail").addEventListener("click",closeDetail);
+  document.getElementById("detail-color-btn").addEventListener("click",function(){
+    if(S.selected) openColorPicker(S.selected);
+  });
   document.getElementById("modal-detail").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeDetail(); });
   document.getElementById("btn-delete").addEventListener("click",deleteCard);
   document.getElementById("share-wa").addEventListener("click",shareWA);
   document.getElementById("share-mail").addEventListener("click",shareMail);
   document.getElementById("btn-export").addEventListener("click",exportAll);
+  document.getElementById("btn-palettes").addEventListener("click",openPalettes);
+  document.getElementById("close-palettes").addEventListener("click",function(){ closeModal("modal-palettes"); });
+  document.getElementById("modal-palettes").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-palettes"); });
+  document.getElementById("palette-apply-btn").addEventListener("click",applyPalette);
+  document.getElementById("close-colorpick").addEventListener("click",function(){ closeModal("modal-colorpick"); });
+  document.getElementById("modal-colorpick").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-colorpick"); });
+  document.getElementById("cp-save-btn").addEventListener("click",saveCardColor);
+  document.getElementById("cp-reset-btn").addEventListener("click",function(){ _cpSelectedColor=null; saveCardColor(); });
+  document.getElementById("cp-custom-apply").addEventListener("click",function(){
+    var v=document.getElementById("cp-custom-color").value;
+    _cpSelectedColor=v;
+    document.querySelectorAll(".cp-swatch").forEach(function(s){ s.classList.remove("selected"); });
+    saveCardColor();
+  });
   document.getElementById("btn-assign-logos").addEventListener("click",openAssignLogos);
   document.getElementById("close-logos").addEventListener("click",function(){ closeModal("modal-logos"); });
   document.getElementById("modal-logos").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-logos"); });
@@ -1311,7 +1537,7 @@ function attachEvents(){
   ds.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&ds.scrollTop<5) closeDetail(); },{passive:true});
   document.querySelectorAll(".bottom-sheet").forEach(function(bs){
     bs.addEventListener("touchstart",function(e){ ty=e.touches[0].clientY; },{passive:true});
-    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); closeModal("modal-logos"); } },{passive:true});
+    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); closeModal("modal-logos"); closeModal("modal-palettes"); closeModal("modal-colorpick"); } },{passive:true});
   });
 }
 
