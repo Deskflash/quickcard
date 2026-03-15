@@ -14,7 +14,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<style>/* Offline font fallback — app is fully usable with system fonts */</style>
+<script>
+// Load JsBarcode from Cache API if offline, CDN if online
+(function(){
+  var JSBC_URL="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js";
+  function loadScript(src){
+    var s=document.createElement("script"); s.src=src; document.head.appendChild(s);
+  }
+  if("caches" in window && !navigator.onLine){
+    caches.match(JSBC_URL).then(function(hit){
+      if(hit){ hit.text().then(function(code){ eval(code); }); }
+      else { loadScript(JSBC_URL); }
+    });
+  } else {
+    loadScript(JSBC_URL);
+  }
+})();
+</script>
 <style>
 :root{
   --bg:#F2FBF7;--surface:#FFFFFF;--surface2:#ECF8F2;--surface3:#D5EDE3;
@@ -23,7 +40,7 @@
   --border:rgba(22,163,106,.14);--shadow:0 1px 12px rgba(10,31,20,.07);
   --shadow-md:0 4px 24px rgba(10,31,20,.11);--shadow-xl:0 16px 56px rgba(10,31,20,.17);
   --tab-h:64px;--safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
-  --font:"Plus Jakarta Sans",-apple-system,sans-serif;
+  --font:"Plus Jakarta Sans",-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
 }
 @media(prefers-color-scheme:dark){
   :root{
@@ -1256,14 +1273,47 @@ function toast(msg){
 function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
 function registerSW(){
-  if(!("serviceWorker" in navigator)) return;
-  var code='const C="qc-v4";self.addEventListener("install",function(){self.skipWaiting();});self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(ks){return Promise.all(ks.filter(function(k){return k!==C;}).map(function(k){return caches.delete(k);}));}));self.clients.claim();});self.addEventListener("fetch",function(e){if(e.request.method!=="GET")return;e.respondWith(caches.open(C).then(function(c){return c.match(e.request).then(function(hit){var net=fetch(e.request).then(function(r){if(r.ok&&r.url.indexOf("http")===0)c.put(e.request,r.clone());return r;}).catch(function(){return hit;});return hit||net;});}));});';
-  var url=URL.createObjectURL(new Blob([code],{type:"application/javascript"}));
-  navigator.serviceWorker.register(url).catch(function(){});
+  // Blob-URL Service Workers are blocked by modern browsers.
+  // When hosted on HTTPS (GitHub Pages / Netlify), the browser itself
+  // caches the page via normal HTTP cache + Cache-Control headers.
+  // We use the Cache API directly to pre-cache CDN resources.
+  if(!("caches" in window)) return;
+  var CACHE="qc-v5";
+  var CDN=[
+    "https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js",
+    "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+  ];
+  // Cache CDN resources in background after first load
+  caches.open(CACHE).then(function(cache){
+    CDN.forEach(function(url){
+      // Only cache if not already cached
+      cache.match(url).then(function(hit){
+        if(!hit){ fetch(url).then(function(r){ if(r.ok) cache.put(url,r); }).catch(function(){}); }
+      });
+    });
+    // Cache the page itself
+    cache.match(window.location.href).then(function(hit){
+      if(!hit){ fetch(window.location.href).then(function(r){ if(r.ok) cache.put(window.location.href,r); }).catch(function(){}); }
+    });
+  });
+  console.log("Cache API: CDN resources queued for offline caching");
 }
 
+
 function injectManifest(){
-  var m={name:"QuickCard",short_name:"QuickCard",description:"Le tue card fedeltà",start_url:".",display:"standalone",background_color:"#F2FBF7",theme_color:"#16A36A"};
+  var icon='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#16A36A"/><text y="65" x="50" text-anchor="middle" font-family="Arial" font-size="60" font-weight="900" fill="white">Q</text></svg>');
+  var m={
+    name:"QuickCard",short_name:"QuickCard",
+    description:"Le tue card fedeltà, sempre con te",
+    start_url:".",display:"standalone",
+    background_color:"#F2FBF7",theme_color:"#16A36A",
+    orientation:"portrait",
+    prefer_related_applications:false,
+    icons:[
+      {src:icon,sizes:"192x192",type:"image/svg+xml",purpose:"any maskable"},
+      {src:icon,sizes:"512x512",type:"image/svg+xml",purpose:"any maskable"}
+    ]
+  };
   var blob=new Blob([JSON.stringify(m)],{type:"application/json"});
   document.getElementById("pwa-manifest").href=URL.createObjectURL(blob);
 }
@@ -1811,7 +1861,41 @@ function attachEvents(){
 }
 
 
-function init(){ injectManifest(); registerSW(); load(); populateStores(); renderGrid(); attachEvents(); }
+function init(){
+  injectManifest();
+  registerSW();
+  load();
+  populateStores();
+  renderGrid();
+  attachEvents();
+  // Warm up: pre-cache page on first load
+  if("caches" in window){
+    caches.open("qc-v5").then(function(cache){
+      cache.add(window.location.href).catch(function(){});
+    });
+  }
+  // Online/offline indicator
+  function updateOnlineStatus(){
+    var offline=!navigator.onLine;
+    var existing=document.getElementById("offline-pill");
+    if(offline&&!existing){
+      var pill=document.createElement("div");
+      pill.id="offline-pill";
+      pill.textContent="Modalità offline";
+      pill.style.cssText="position:fixed;top:calc(env(safe-area-inset-top,0px)+8px);left:50%;transform:translateX(-50%);background:#E67E22;color:#fff;font-size:12px;font-weight:700;padding:5px 14px;border-radius:50px;z-index:9999;box-shadow:0 2px 10px rgba(0,0,0,.2)";
+      document.body.appendChild(pill);
+    } else if(!offline&&existing){
+      existing.remove();
+    }
+  }
+  window.addEventListener("online",updateOnlineStatus);
+  window.addEventListener("offline",updateOnlineStatus);
+  updateOnlineStatus();
+  // Hide the offline warning if SW errors appear in console (cosmetic cleanup)
+  window.addEventListener("unhandledrejection",function(e){
+    if(e.reason&&e.reason.toString().indexOf("ServiceWorker")>=0) e.preventDefault();
+  });
+}
 init();
 </script>
 </body>
