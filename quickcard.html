@@ -749,6 +749,8 @@ function load(){
   try{ S.cards=JSON.parse(localStorage.getItem(KEY)||"[]"); }catch(e){ S.cards=[]; }
   try{ OPEN_COUNTS=JSON.parse(localStorage.getItem(KEY+"_oc")||"{}"); }catch(e){ OPEN_COUNTS={}; }
   try{ CUSTOM_LOGOS=JSON.parse(localStorage.getItem(KEY+"_lg")||"{}"); }catch(e){ CUSTOM_LOGOS={}; }
+  try{ CARD_COLORS=JSON.parse(localStorage.getItem(KEY+"_cc")||"{}"); }catch(e){ CARD_COLORS={}; }
+  try{ ACTIVE_PALETTE=localStorage.getItem(KEY+"_pal")||"auto"; }catch(e){ ACTIVE_PALETTE="auto"; }
 }
 function save(){
   localStorage.setItem(KEY,JSON.stringify(S.cards));
@@ -756,6 +758,10 @@ function save(){
 }
 function saveLogos(){
   localStorage.setItem(KEY+"_lg",JSON.stringify(CUSTOM_LOGOS));
+}
+function saveColors(){
+  localStorage.setItem(KEY+"_cc",JSON.stringify(CARD_COLORS));
+  localStorage.setItem(KEY+"_pal",ACTIVE_PALETTE);
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
 function fmt(ts){ return new Date(ts).toLocaleDateString("it-IT",{day:"2-digit",month:"long",year:"numeric"}); }
