@@ -1347,8 +1347,8 @@ function renderQR(){
       var dark=window.matchMedia("(prefers-color-scheme:dark)").matches;
       new QRCode(wrapper,{
         text:S.selected.code,
-        width:220,
-        height:220,
+        width:180,
+        height:180,
         colorDark:dark?"#E8F5EE":"#0A1F14",
         colorLight:dark?"#1A2E24":"#FFFFFF",
         correctLevel:QRCode.CorrectLevel.M
