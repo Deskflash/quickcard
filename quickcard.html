@@ -562,8 +562,8 @@ input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border
         <span data-i18n="importHint2">1. Carica il file</span> <code style="font-size:11px">.qcards</code><br>
         <span data-i18n="importHint3">2. Oppure incolla il testo (formato:</span> <code style="font-size:11px">Nome: codice</code>)
       </div>
-      <div class="btn-row" style="margin-bottom:16px">
-        <button class="btn-p" id="import-file-btn" style="font-size:14px">
+      <div style="margin-bottom:16px">
+        <button class="btn-p w100" id="import-file-btn" style="font-size:14px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           <span data-i18n="btnLoadFile">Carica file .qcards</span>
         </button>
@@ -582,7 +582,7 @@ input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border
         </div>
       </div>
       <div class="btn-row">
-        <button class="btn-s" id="import-paste-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span data-i18n="btnPaste">Incolla</span></button>
+        
         <button class="btn-p" id="import-parse-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 18 6-6-6-6"/></svg><span data-i18n="btnAnalyze">Analizza</span></button>
       </div>
     </div>
@@ -1866,26 +1866,34 @@ function exportShare(){
     var ts=new Date().toISOString().slice(0,10);
     var filename="quickcard-"+ts+".qcards";
     var blob=new Blob([json],{type:"application/json"});
-    try{
-      if(navigator.share&&navigator.canShare){
+    // Try file share first (Android Chrome native sheet)
+    if(navigator.share){
+      var shareData={title:"Le mie card QuickCard"};
+      var canFile=false;
+      try{
         var file=new File([blob],filename,{type:"application/json"});
-        if(navigator.canShare({files:[file]})){
-          navigator.share({title:"Le mie card QuickCard",files:[file]})
-            .catch(function(e){ if(e.name!=="AbortError") downloadFile(json,filename); });
-          return;
+        if(navigator.canShare&&navigator.canShare({files:[file]})){
+          shareData.files=[file];
+          canFile=true;
         }
+      }catch(e){}
+      if(!canFile){
+        // Fallback: share as text (no file)
+        var lines=S.cards.map(function(c){
+          var l=c.name+": "+c.code;
+          var logo=CUSTOM_LOGOS[c.name];
+          if(logo&&logo.indexOf("http")===0) l+=" [logo:"+logo+"]";
+          return l;
+        }).join("\n");
+        shareData.text=t("shareMultiHeader")+"\n\n"+lines;
       }
-    }catch(e){}
-    var lines=S.cards.map(function(c){
-      var l=c.name+": "+c.code;
-      var logo=CUSTOM_LOGOS[c.name];
-      if(logo&&logo.indexOf("http")===0) l+=" [logo:"+logo+"]";
-      return l;
-    }).join("\n");
-    var text=t("shareMultiHeader")+"\n\n"+lines;
-    if(navigator.share){ navigator.share({title:"Le mie card",text:text}).catch(function(){}); }
-    else if(navigator.clipboard){ navigator.clipboard.writeText(text).then(function(){ toast(t("toastCopied")); }); }
-    else{ prompt("Copia:",text); }
+      navigator.share(shareData).catch(function(e){
+        if(e.name!=="AbortError") toast("Condivisione non riuscita. Usa 'Salva file'.");
+      });
+      return;
+    }
+    // Desktop fallback
+    downloadFile(json,filename);
   }catch(e){ toast("Errore: "+e.message); }
 }
 
@@ -1897,6 +1905,12 @@ function exportSave(){
     var ts=new Date().toISOString().slice(0,10);
     var filename="quickcard-"+ts+".qcards";
     downloadFile(json,filename);
+    // Show clear message after save
+    setTimeout(function(){
+      // iOS shows its own "Options" panel, Android saves to Download
+      var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+      if(!isIOS) toast("✓ File scaricato: "+filename);
+    },800);
   }catch(e){ toast("Errore: "+e.message); }
 }
 
@@ -2581,18 +2595,7 @@ function attachEvents(){
     importFromFile(this.files&&this.files[0]);
     this.value="";
   });
-  document.getElementById("import-paste-btn").addEventListener("click",function(){
-    if(navigator.clipboard&&navigator.clipboard.readText){
-      navigator.clipboard.readText().then(function(t){
-        document.getElementById("import-text").value=t;
-        toast(t("toastPasted"));
-      }).catch(function(){
-        toast("Incolla manualmente nel campo testo");
-      });
-    } else {
-      toast("Incolla manualmente nel campo testo");
-    }
-  });
+
   document.getElementById("import-parse-btn").addEventListener("click",parseAndPreview);
   document.getElementById("import-back-btn").addEventListener("click",function(){ showImportStep("paste"); });
   document.getElementById("import-confirm-btn").addEventListener("click",confirmImport);
