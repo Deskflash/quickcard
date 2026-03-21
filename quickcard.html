@@ -818,6 +818,51 @@ input[type=color]{width:44px;height:36px;border:1.5px solid var(--border);border
   </div>
 </div>
 
+
+<!-- MODAL SHARE VIA -->
+<div id="modal-share-via" class="modal-overlay" aria-hidden="true">
+  <div class="bottom-sheet">
+    <div class="sheet-pill"></div>
+    <div class="sheet-head">
+      <h2 class="sheet-title" data-i18n="shareViaTitle">Condividi tramite</h2>
+      <button class="icon-btn" id="close-share-via"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <p id="share-via-desc" style="font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.5"></p>
+
+    <button class="settings-row" id="share-via-wa" style="margin-bottom:8px">
+      <span class="sr-icon" style="background:rgba(37,211,102,.12);color:#25D366">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+      </span>
+      <span data-i18n="shareViaWhatsApp">WhatsApp</span>
+      <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+    <button class="settings-row" id="share-via-tg" style="margin-bottom:8px">
+      <span class="sr-icon" style="background:rgba(40,167,212,.12);color:#28A7D4">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+      </span>
+      <span data-i18n="shareViaTelegram">Telegram</span>
+      <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+    <button class="settings-row" id="share-via-email" style="margin-bottom:8px">
+      <span class="sr-icon" style="background:rgba(59,130,246,.12);color:#3B82F6">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </span>
+      <span data-i18n="shareViaEmail">Email</span>
+      <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+    <button class="settings-row" id="share-via-copy">
+      <span class="sr-icon" style="background:var(--surface2);color:var(--text2)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      </span>
+      <span data-i18n="shareViaCopy">Copia testo</span>
+      <svg class="sr-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
 </div>
 
@@ -989,6 +1034,13 @@ var T = {
     exportShareDesc: "Invia via WhatsApp, Email, Drive…",
     exportSave: "Salva file .qcards",
     exportSaveDesc: "Scarica il file sul dispositivo",
+    shareFailMsg: "Condivisione non riuscita. Usa 'Salva file'.",
+    shareViaTitle: "Condividi tramite",
+    shareViaWhatsApp: "WhatsApp",
+    shareViaTelegram: "Telegram",
+    shareViaEmail: "Email",
+    shareViaCopy: "Copia testo",
+    toastTextCopied: "✓ Testo copiato negli appunti",
     footer: "QuickCard 🇮🇹",
   },
 
@@ -1124,6 +1176,13 @@ var T = {
     exportShareDesc: "Send via WhatsApp, Email, Drive…",
     exportSave: "Save .qcards file",
     exportSaveDesc: "Download the file to your device",
+    shareFailMsg: "Sharing failed. Use 'Save file'.",
+    shareViaTitle: "Share via",
+    shareViaWhatsApp: "WhatsApp",
+    shareViaTelegram: "Telegram",
+    shareViaEmail: "Email",
+    shareViaCopy: "Copy text",
+    toastTextCopied: "✓ Text copied to clipboard",
     footer: "QuickCard 🇬🇧",
   },
 
@@ -1259,6 +1318,13 @@ var T = {
     exportShareDesc: "Enviar por WhatsApp, Email, Drive…",
     exportSave: "Guardar archivo .qcards",
     exportSaveDesc: "Descarga el archivo en tu dispositivo",
+    shareFailMsg: "Compartir falló. Usa 'Guardar archivo'.",
+    shareViaTitle: "Compartir vía",
+    shareViaWhatsApp: "WhatsApp",
+    shareViaTelegram: "Telegram",
+    shareViaEmail: "Email",
+    shareViaCopy: "Copiar texto",
+    toastTextCopied: "✓ Texto copiado al portapapeles",
     footer: "QuickCard 🇪🇸",
   },
 };
@@ -1858,43 +1924,53 @@ function _buildExportData(){
   };
 }
 
+// Build share text for all cards
+function _buildShareText(){
+  var lines=S.cards.map(function(c){
+    var l=c.name+": "+c.code;
+    var logo=CUSTOM_LOGOS[c.name];
+    if(logo&&logo.indexOf("http")===0) l+=" [logo:"+logo+"]";
+    return l;
+  }).join("\n");
+  return t("shareMultiHeader")+"\n\n"+lines;
+}
+
+var _shareViaText=""; // holds text ready to share
+
 function exportShare(){
   closeModal("modal-export");
-  try{
-    var data=_buildExportData();
-    var json=JSON.stringify(data,null,2);
-    var ts=new Date().toISOString().slice(0,10);
-    var filename="quickcard-"+ts+".qcards";
-    var blob=new Blob([json],{type:"application/json"});
-    // Try file share first (Android Chrome native sheet)
-    if(navigator.share){
-      var shareData={title:"Le mie card QuickCard"};
-      var canFile=false;
-      try{
-        var file=new File([blob],filename,{type:"application/json"});
-        if(navigator.canShare&&navigator.canShare({files:[file]})){
-          shareData.files=[file];
-          canFile=true;
-        }
-      }catch(e){}
-      if(!canFile){
-        // Fallback: share as text (no file)
-        var lines=S.cards.map(function(c){
-          var l=c.name+": "+c.code;
-          var logo=CUSTOM_LOGOS[c.name];
-          if(logo&&logo.indexOf("http")===0) l+=" [logo:"+logo+"]";
-          return l;
-        }).join("\n");
-        shareData.text=t("shareMultiHeader")+"\n\n"+lines;
-      }
-      navigator.share(shareData).catch(function(e){
-        if(e.name!=="AbortError") toast("Condivisione non riuscita. Usa 'Salva file'.");
-      });
-      return;
-    }
-    // Desktop fallback
-    downloadFile(json,filename);
-  }catch(e){ toast("Errore: "+e.message); }
+  _shareViaText=_buildShareText();
+  // Update description in modal
+  var desc=document.getElementById("share-via-desc");
+  if(desc) desc.textContent=t("shareViaTitle")+": "+S.cards.length+" card";
+  openModal("modal-share-via");
+}
+
+function shareViaWhatsApp(){
+  closeModal("modal-share-via");
+  window.open("https://wa.me/?text="+encodeURIComponent(_shareViaText),"_blank");
+}
+
+function shareViaTelegram(){
+  closeModal("modal-share-via");
+  window.open("https://t.me/share/url?url=&text="+encodeURIComponent(_shareViaText),"_blank");
+}
+
+function shareViaEmail(){
+  closeModal("modal-share-via");
+  var subj=t("shareMailSubject")?t("shareMailSubject")("QuickCard"):"Le mie card QuickCard";
+  location.href="mailto:?subject="+encodeURIComponent(subj)+"&body="+encodeURIComponent(_shareViaText);
+}
+
+function shareViaCopy(){
+  closeModal("modal-share-via");
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(_shareViaText).then(function(){ toast(t("toastTextCopied")); }).catch(function(){
+      prompt("Copia:",_shareViaText);
+    });
+  } else {
+    prompt("Copia:",_shareViaText);
+  }
 }
 
 function exportSave(){
@@ -2558,6 +2634,12 @@ function attachEvents(){
     b.addEventListener("click",function(){ setLang(b.dataset.lang); });
   });
   document.getElementById("btn-export").addEventListener("click",exportAll);
+  document.getElementById("close-share-via").addEventListener("click",function(){ closeModal("modal-share-via"); });
+  document.getElementById("modal-share-via").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-share-via"); });
+  document.getElementById("share-via-wa").addEventListener("click",shareViaWhatsApp);
+  document.getElementById("share-via-tg").addEventListener("click",shareViaTelegram);
+  document.getElementById("share-via-email").addEventListener("click",shareViaEmail);
+  document.getElementById("share-via-copy").addEventListener("click",shareViaCopy);
   document.getElementById("close-export-modal").addEventListener("click",function(){ closeModal("modal-export"); });
   document.getElementById("modal-export").addEventListener("click",function(e){ if(e.target===e.currentTarget) closeModal("modal-export"); });
   document.getElementById("export-share-btn").addEventListener("click",exportShare);
@@ -2610,7 +2692,7 @@ function attachEvents(){
   ds.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&ds.scrollTop<5) closeDetail(); },{passive:true});
   document.querySelectorAll(".bottom-sheet").forEach(function(bs){
     bs.addEventListener("touchstart",function(e){ ty=e.touches[0].clientY; },{passive:true});
-    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); closeModal("modal-logos"); closeModal("modal-palettes"); closeModal("modal-colorpick"); closeModal("modal-edit"); closeModal("modal-export"); } },{passive:true});
+    bs.addEventListener("touchend",function(e){ if(e.changedTouches[0].clientY-ty>80&&bs.scrollTop<5){ closeAdd(); closeImport(); closeModal("modal-logos"); closeModal("modal-palettes"); closeModal("modal-colorpick"); closeModal("modal-edit"); closeModal("modal-export"); closeModal("modal-share-via"); } },{passive:true});
   });
 }
 
